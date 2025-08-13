@@ -8,39 +8,6 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div class="stepper">
-        <ul>
-            <li class="step">
-                <div class="step-number">1</div>
-                <div class="step-title">情報入力</div>
-            </li>
-            <li class="step">
-                <div class="step-number">2</div>
-                <div class="step-title">説明確認</div>
-            </li>
-            <li class="step">
-                <div class="step-number">3</div>
-                <div class="step-title">食品配置</div>
-            </li>
-            <li class="step">
-                <div class="step-number">4</div>
-                <div class="step-title">グループ作成</div>
-            </li>
-            <li class="step">
-                <div class="step-number">5</div>
-                <div class="step-title">フィードバック</div>
-            </li>
-            <li class="step">
-                <div class="step-number">6</div>
-                <div class="step-title">アンケート</div>
-            </li>
-            <li class="step">
-                <div class="step-number">7</div>
-                <div class="step-title">完了</div>
-            </li>
-        </ul>
-    </div>
-    
     <div id="app" class="screen-container">
         <div id="screen1" class="screen">
             <h2>被験者情報を入力してください</h2>
@@ -52,7 +19,40 @@
         </div>
 
         <div id="screen2" class="screen">
+            <h2>実験のやり方・注意事項</h2>
+            <p>この実験では、様々な<strong>食品の画像</strong>を画面に表示します。この白い画面は、あなたの<strong>「頭の中」や「思考のテーブル」</strong>だと思ってください。ドラッグ＆ドロップで食品を動かすことは、机の上でカードを整理しながら、考えをまとめる作業と同じです。</p>
+            <p>画面上の<strong>「距離」</strong>は、あなたの頭の中にある<strong>「関係性の強さ」</strong>を表します。あなただけの「頭の中の地図」を作るつもりで、楽しんで配置してみてください。</p>
+            <div class="instructions-layout">
+                <div class="instructions-text">
+                    <ul>
+                        <li>
+                            <strong>配置フェーズ</strong>: 
+                            食品画像の上にある<strong>青いバー</strong>をドラッグ＆ドロップして、自由に移動・配置してください。<br>
+                            <ul>
+                                <li><strong>「関連が強い」「一緒に思い浮かぶ」</strong>と感じる食品同士は、<strong>物理的に近くに</strong>配置してください。</li>
+                                <li>逆に「関連が薄い」「全く別の文脈で考える」食品同士は、<strong>思い切って遠くに</strong>離してみてください。</li>
+                            </ul>
+                            「関係性」に正解はありません。例えば、「調理法が似ている」「同じ食事のシーンで食べる」「味の方向性が近い」といった、あなたが直感で感じる<strong>「つながり」</strong>を自由に表現してください。各食品の上にある<strong>丸い[i]ボタン</strong>をクリックすると、その食品の情報を右側のパネルで確認できます。
+                        </li>
+                        <li>
+                            <strong>クラスター作成フェーズ</strong>: 
+                            全ての食品を配置し終えたら、「配置を確定する」ボタンを押してください。その後、<strong>マウスで食品を円で囲む</strong>ことでクラスター（グループ）を作成できます。
+                        </li>
+                        <li>
+                            <strong>フィードバックフェーズ</strong>: 
+                            全てのクラスターを作成し終えたら、「クラスターレビューへ進む」ボタンを押してください。その後、作成した各クラスターについて質問に回答していただきます。
+                        </li>
+                    </ul>
+                </div>
+                <div class="instructions-example">
+                    <p><strong>【作業画面の例】</strong></p>
+                    <img src="example.png" alt="作業画面の例">
+                </div>
             </div>
+            <p>操作に関する不明点があれば、研究者に確認してください。それでは、準備ができたら「実験開始」ボタンを押してください。</p>
+            <button id="startExperimentBtn">実験開始</button>
+            <button id="backToScreen1Btn" class="back-button">前の画面に戻る</button> 
+        </div>
 
         <div id="screen3" class="screen">
             <h1>自由配置型食品認知マップ</h1>
@@ -63,7 +63,11 @@
                     </div>
                 </div>
                 <div id="details-panel" class="details-area">
-                    </div>
+                    <h3 id="details-food-name"></h3>
+                    <img id="details-food-image" src="" alt="選択された食品の画像" style="display:none;">
+                    <div id="details-food-info"></div>
+                    <p id="details-placeholder" class="info-text" style="display:block;">食品の[i]ボタンをクリックすると、ここに詳細情報が表示されます。</p>
+                </div>
             </div>
             <div class="button-controls">
                 <button id="backToScreen2Btn" class="back-button">前の画面に戻る</button> 
