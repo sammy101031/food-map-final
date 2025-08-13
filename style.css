@@ -84,3 +84,9 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
 .checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .checkbox-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 @media (max-width: 768px) { .instructions-layout, .experiment-layout-container { flex-direction: column; } }
+
+/* フィードバック画面でレイアウトを固定するためのスタイル */
+.feedback-mode-active .experiment-layout-container {
+    height: 550px; /* レイアウトの高さを固定 */
+    flex-grow: 0;
+}

@@ -188,6 +188,7 @@ function initializeApp() {
 
     if (goToFeedbackBtn) {
         goToFeedbackBtn.addEventListener('click', () => {
+            document.body.classList.add('feedback-mode-active'); // ★ この行を追加
             currentMode = 'clusterFeedback';
             removeActiveDeleteButton();
             updateStatusMessage('作成した各クラスターについて、以下の項目を記入してください。');
@@ -379,6 +380,7 @@ function initializeApp() {
     if (backToScreen2Btn) {
         backToScreen2Btn.addEventListener('click', () => {
             if (confirm("実験説明画面に戻りますか？現在の配置やクラスターの情報はリセットされます。よろしいですか？")) {
+                document.body.classList.remove('feedback-mode-active'); // ★ この行を追加
                 resetScreen3UI();
                 showScreen(screen2);
                 currentMode = 'instructions';
