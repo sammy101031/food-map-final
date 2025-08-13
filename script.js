@@ -143,6 +143,15 @@ function initializeApp() {
     backToScreen2Btn = document.getElementById('backToScreen2Btn');
     backToStartBtn2 = document.getElementById('backToStartBtn2');
 
+    if (subjectAgeInput) {
+        subjectAgeInput.addEventListener('input', (e) => {
+            const halfWidthValue = e.target.value.replace(/[０-９]/g, (s) => {
+                return String.fromCharCode(s.charCodeAt(0) - 0xFEE0);
+            });
+            e.target.value = halfWidthValue;
+        });
+    }
+
     if (goToScreen2Btn) {
         goToScreen2Btn.addEventListener('click', () => {
             const name = subjectNameInput.value.trim();
