@@ -1,16 +1,16 @@
 // DOM要素のキャッシュ
 let appContainer, screen1, screen2, screen3, screen4, screen5,
-    subjectNameInput, subjectAgeInput, subjectEmailInput, goToScreen2Btn, startExperimentBtn,
-    canvasContainer, clusterCanvas, ctx,
-    finishPlacementBtn, goToFeedbackBtn, saveFeedbackAndDataBtn, submitAndFinishBtn,
-    loadingSpinner, statusMessage, detailsPanel,
-    backToScreen1Btn, backToScreen2Btn, backToStartBtn2;
+subjectNameInput, subjectAgeInput, subjectEmailInput, goToScreen2Btn, startExperimentBtn,
+canvasContainer, clusterCanvas, ctx,
+finishPlacementBtn, goToFeedbackBtn, saveFeedbackAndDataBtn, submitAndFinishBtn,
+loadingSpinner, statusMessage, detailsPanel,
+backToScreen1Btn, backToScreen2Btn, backToStartBtn2;
 
 // グローバル変数
 let subjectInfo = {};
 let experimentData = {
-    subjectInfo: {}, positions: [], clusters: [],
-    placementTime: null, moveHistory: [], relations: []
+subjectInfo: {}, positions: [], clusters: [],
+placementTime: null, moveHistory: [], relations: []
 };
 let currentMode = 'intro';
 let foodContainers = {};
@@ -21,664 +21,232 @@ let selectedClusterIndexForDeletion = -1;
 
 // 食品リスト
 let foodList = [
-    { name: "gyoza", label: "餃子", imgSrc: "gyoza.jpg", info: "油・水なしで、誰が調理しても簡単にパリッパリの羽根ができる、うす皮パリッと、ジューシーで具がギュッと詰まった焼き餃子です。\n誰もが好きな、間違いない安定感のある王道のおいしさです。\n国産のお肉と野菜を使用しています。\n【内容量】12個入り（276g）" },
-    { name: "chahan", label: "チャーハン", imgSrc: "chahan.png", info: "焦がしにんにくのマー油と葱油の香ばしさや、噛むほどに広がる焼豚のうま味で、一度口にすると一心不乱に食べきってしまいたくなるチャーハンです。\n焦がしにんにくの香りを引き立たせ、焼豚の風味も調整し、メリハリのある味を実現。\nどんどん食べ進めたくなる味に進化しました。\n【内容量】580g" },
-    { name: "empanada", label: "エンパナーダ", imgSrc: "empanada.jpg", info: "アルゼンチン伝統料理：本場の味わいを楽しめるエンパナーダの6個セット。南米の伝統的な味を日本で堪能できます。\n食べ比べセット：シェフが厳選した６種類のエンパナーダを一度に楽しめる贅沢な詰め合わせパック" },
-    { name: "gratin", label: "グラタン", imgSrc: "gratin.png", info: "蔵王産ミルクを使用。チーズのおいしさとプリプリのえびがマッチしたグラタンです。\nチーズの風味豊かに！チーズを感じられるようカットサイズにもこだわっています。" },
-    { name: "lasagna", label: "ラザニア", imgSrc: "lasagna.png", info: "オーブンで焼き上げたチーズが香ばしい、生パスタを使った本格ラザニア。ちょっと小腹がすいた時、お夜食に、ランチメニューの一品に、ビールのおつまみなどにぴったりな一品です。" },
-    { name: "australian_meatpie", label: "オーストラリアンミートパイ", imgSrc: "australian_meatpie.jpg", info: "チーズ風味が香るミートソースは、100%オージービーフを使用しています。家族や友達、みんなで楽しめる6個入りパックです。\nパイ生地は、フタ部分と下のパイで2種類の異なるパイ生地を使用しています。\n特に上のフタになっているパイはサクサクに仕上げているので、なかのトロっとしたソースとの絶妙なコンビネーションを楽しめます。" },
-    { name: "ravioli", label: "ラビオリ", imgSrc: "ravioli.webp", info: "爽やかな風味のリコッタチーズとほうれん草をパスタ生地で包みトマトソースで和えたラビオリです。リコッタのマイルドな味わいとトマトソースの相性は抜群、さらにチーズをトッピングし風味豊かに仕上げました。" },
-    { name: "yakionigiri", label: "焼きおにぎり", imgSrc: "yakionigiri.jpg", info: "香りを立たせ、持続させるニッスイの独自技術「香りのＷアップ製法」で、しょうゆの風味と香りをより引き立たせました。\nたまりしょうゆと二段仕込みしょうゆをブレンドした、まろやかでコクのあるしょうゆの風味豊かな焼きおにぎりです。" },
-    { name: "reitou_udon", label: "冷凍うどん", imgSrc: "reitou_udon.jpg", info: "強いコシと弾力のさぬきうどんに、瀬戸内産いりこを使用しただし香るまろやかでコクのあるつゆ。麺はこだわりの包丁切りで、つゆとの絡みも良くお召し上がりいただけます。" },
-    { name: "reitou_pasta", label: "冷凍パスタ", imgSrc: "reitou_pasta.jpg", info: "牛挽肉の旨みと赤ワインの風味が特長のボロネーゼソース。ゴーダチーズとごろっと大きな揚げなすをトッピング。" },
-    { name: "fried_potato", label: "フライドポテト", imgSrc: "fried_potato.jpg", info: "じゃがいもを細長く切って油で揚げた、世界中で人気のスナック。\n冷凍品を家庭で揚げるだけで、カリッとした食感が楽しめます。" },
-    { name: "karaage", label: "鶏のから揚げ", imgSrc: "karaage.png", info: "食欲を満たす肉の塊、これぞから揚げの金字塔！\nにんにく風味アップでさらに白飯がガツガツ進む！\n秘伝にんにく油、葱油、特級醤油の極旨仕込みだれにじっくり漬け込んだ香りがクセになるから揚げです。\n火入れの温度にこだわった”秘伝にんにく油”でにんにくの香りが引き立ち、肉汁がジュワッと広がります。" }
+{ name: "gyoza", label: "餃子", imgSrc: "gyoza.jpg", info: "油・水なしで、誰が調理しても簡単にパリッパリの羽根ができる、うす皮パリッと、ジューシーで具がギュッと詰まった焼き餃子です。\n誰もが好きな、間違いない安定感のある王道のおいしさです。\n国産のお肉と野菜を使用しています。\n【内容量】12個入り（276g）" },
+{ name: "chahan", label: "チャーハン", imgSrc: "chahan.png", info: "焦がしにんにくのマー油と葱油の香ばしさや、噛むほどに広がる焼豚のうま味で、一度口にすると一心不乱に食べきってしまいたくなるチャーハンです。\n焦がしにんにくの香りを引き立たせ、焼豚の風味も調整し、メリハリのある味を実現。\nどんどん食べ進めたくなる味に進化しました。\n【内容量】580g" },
+{ name: "empanada", label: "エンパナーダ", imgSrc: "empanada.jpg", info: "アルゼンチン伝統料理：本場の味わいを楽しめるエンパナーダの6個セット。南米の伝統的な味を日本で堪能できます。\n食べ比べセット：シェフが厳選した６種類のエンパナーダを一度に楽しめる贅沢な詰め合わせパック" },
+{ name: "gratin", label: "グラタン", imgSrc: "gratin.png", info: "蔵王産ミルクを使用。チーズのおいしさとプリプリのえびがマッチしたグラタンです。\nチーズの風味豊かに！チーズを感じられるようカットサイズにもこだわっています。" },
+{ name: "lasagna", label: "ラザニア", imgSrc: "lasagna.png", info: "オーブンで焼き上げたチーズが香ばしい、生パスタを使った本格ラザニア。ちょっと小腹がすいた時、お夜食に、ランチメニューの一品に、ビールのおつまみなどにぴったりな一品です。" },
+{ name: "australian_meatpie", label: "オーストラリアンミートパイ", imgSrc: "australian_meatpie.jpg", info: "チーズ風味が香るミートソースは、100%オージービーフを使用しています。家族や友達、みんなで楽しめる6個入りパックです。\nパイ生地は、フタ部分と下のパイで2種類の異なるパイ生地を使用しています。\n特に上のフタになっているパイはサクサクに仕上げているので、なかのトロっとしたソースとの絶妙なコンビネーションを楽しめます。" },
+{ name: "ravioli", label: "ラビオリ", imgSrc: "ravioli.webp", info: "爽やかな風味のリコッタチーズとほうれん草をパスタ生地で包みトマトソースで和えたラビオリです。リコッタのマイルドな味わいとトマトソースの相性は抜群、さらにチーズをトッピングし風味豊かに仕上げました。" },
+{ name: "yakionigiri", label: "焼きおにぎり", imgSrc: "yakionigiri.jpg", info: "香りを立たせ、持続させるニッスイの独自技術「香りのＷアップ製法」で、しょうゆの風味と香りをより引き立たせました。\nたまりしょうゆと二段仕込みしょうゆをブレンドした、まろやかでコクのあるしょうゆの風味豊かな焼きおにぎりです。" },
+{ name: "reitou_udon", label: "冷凍うどん", imgSrc: "reitou_udon.jpg", info: "強いコシと弾力のさぬきうどんに、瀬戸内産いりこを使用しただし香るまろやかでコクのあるつゆ。麺はこだわりの包丁切りで、つゆとの絡みも良くお召し上がりいただけます。" },
+{ name: "reitou_pasta", label: "冷凍パスタ", imgSrc: "reitou_pasta.jpg", info: "牛挽肉の旨みと赤ワインの風味が特長のボロネーゼソース。ゴーダチーズとごろっと大きな揚げなすをトッピング。" },
+{ name: "fried_potato", label: "フライドポテト", imgSrc: "fried_potato.jpg", info: "じゃがいもを細長く切って油で揚げた、世界中で人気のスナック。\n冷凍品を家庭で揚げるだけで、カリッとした食感が楽しめます。" },
+{ name: "karaage", label: "鶏のから揚げ", imgSrc: "karaage.png", info: "食欲を満たす肉の塊、これぞから揚げの金字塔！\nにんにく風味アップでさらに白飯がガツガツ進む！\n秘伝にんにく油、葱油、特級醤油の極旨仕込みだれにじっくり漬け込んだ香りがクセになるから揚げです。\n火入れの温度にこだわった”秘伝にんにく油”でにんにくの香りが引き立ち、肉汁がジュワッと広がります。" }
 ];
 
 function getCurrentTimestamp() {
-    if (!experimentData.startTime) return 0;
-    return Math.floor((Date.now() - experimentData.startTime) / 1000);
+if (!experimentData.startTime) return 0;
+return Math.floor((Date.now() - experimentData.startTime) / 1000);
 }
 
 function loadFoodListFromLocalStorage() {
-    try {
-        const storedFoodList = localStorage.getItem('foodList');
-        if (storedFoodList) {
-            const parsedList = JSON.parse(storedFoodList);
-            if (Array.isArray(parsedList) && parsedList.length > 0) {
-                foodList = parsedList;
-            }
+try {
+    const storedFoodList = localStorage.getItem('foodList');
+    if (storedFoodList) {
+        const parsedList = JSON.parse(storedFoodList);
+        if (Array.isArray(parsedList) && parsedList.length > 0) {
+            foodList = parsedList;
         }
-    } catch (e) { console.error("Error loading food list:", e); }
+    }
+} catch (e) { console.error("Error loading food list:", e); }
 }
 
 function showScreen(screenToShow) {
-    if (!appContainer || !screenToShow) return;
-    [screen1, screen2, screen3, screen4, screen5].forEach(s => {
-        if(s) s.classList.remove('active');
-    });
-    screenToShow.classList.add('active');
-    if (!appContainer.classList.contains('active')) {
-      appContainer.classList.add('active');
-    }
+if (!appContainer || !screenToShow) return;
+([screen1, screen2, screen3, screen4, screen5]).forEach(s => {
+    if(s) s.classList.remove('active');
+});
+screenToShow.classList.add('active');
+if (!appContainer.classList.contains('active')) {
+  appContainer.classList.add('active');
+}
 }
 
 function displayFoodDetails(food) {
-    const nameEl = document.getElementById('details-food-name');
-    const imageEl = document.getElementById('details-food-image');
-    const infoEl = document.getElementById('details-food-info');
-    const placeholderEl = document.getElementById('details-placeholder');
+const nameEl = document.getElementById('details-food-name');
+const imageEl = document.getElementById('details-food-image');
+const infoEl = document.getElementById('details-food-info');
+const placeholderEl = document.getElementById('details-placeholder');
 
-    if (!detailsPanel || !nameEl || !imageEl || !infoEl || !placeholderEl) return;
-    if (currentMode === 'clusterFeedback' && detailsPanel.querySelector('.cluster-feedback-item')) return;
-    
-    if (!food) {
-        nameEl.textContent = '';
-        imageEl.src = '';
-        imageEl.style.display = 'none';
-        infoEl.innerHTML = '';
-        placeholderEl.style.display = 'block';
-        detailsPanel.scrollTop = 0;
-        Object.values(foodContainers).forEach(fc => fc.classList.remove('selected-food-item'));
-        return;
-    }
-    nameEl.textContent = food.label;
-    imageEl.src = food.imgSrc;
-    imageEl.style.display = 'block';
-    infoEl.innerHTML = food.info ? food.info.replace(/\n/g, '<br>') : '情報なし';
-    placeholderEl.style.display = 'none';
+if (!detailsPanel || !nameEl || !imageEl || !infoEl || !placeholderEl) return;
+if (currentMode === 'clusterFeedback' && detailsPanel.querySelector('.cluster-feedback-item')) return;
+
+if (!food) {
+    nameEl.textContent = '';
+    imageEl.src = '';
+    imageEl.style.display = 'none';
+    infoEl.innerHTML = '';
+    placeholderEl.style.display = 'block';
     detailsPanel.scrollTop = 0;
     Object.values(foodContainers).forEach(fc => fc.classList.remove('selected-food-item'));
-    if (foodContainers[food.name]) foodContainers[food.name].classList.add('selected-food-item');
+    return;
+}
+nameEl.textContent = food.label;
+imageEl.src = food.imgSrc;
+imageEl.style.display = 'block';
+infoEl.innerHTML = food.info ? food.info.replace(/\n/g, '<br>') : '情報なし';
+placeholderEl.style.display = 'none';
+detailsPanel.scrollTop = 0;
+Object.values(foodContainers).forEach(fc => fc.classList.remove('selected-food-item'));
+if (foodContainers && foodContainers.hasOwnProperty(food.name)) foodContainers.food.name.classList.add('selected-food-item');
 }
 
 function resetScreen3UI() {
-    if (canvasContainer) {
-        canvasContainer.querySelectorAll('.food-container').forEach(fc => fc.remove());
-    }
-    if (ctx && clusterCanvas) {
-        ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height);
-    }
-    foodContainers = {};
-    experimentData.clusters = [];
-    drawAllClusters();
+if (canvasContainer) {
+    canvasContainer.querySelectorAll('.food-container').forEach(fc => fc.remove());
+}
+if (ctx && clusterCanvas) {
+    ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height);
+}
+foodContainers = {};
+experimentData.clusters = [];
+drawAllClusters();
 
-    if (detailsPanel) {
-        detailsPanel.innerHTML = `<h3 id="details-food-name"></h3><img id="details-food-image" src="" alt="選択された食品の画像" style="display:none;"><div id="details-food-info"></div><p id="details-placeholder" class="info-text" style="display:block;">食品の[i]ボタンをクリックすると、ここに詳細情報が表示されます。</p>`;
-    }
-    if (statusMessage) updateStatusMessage("");
-    if (finishPlacementBtn) finishPlacementBtn.style.display = 'none';
-    if (goToFeedbackBtn) goToFeedbackBtn.style.display = 'none';
-    if (saveFeedbackAndDataBtn) saveFeedbackAndDataBtn.style.display = 'none';
-    if (clusterCanvas) clusterCanvas.classList.remove('active-drawing');
-    removeActiveDeleteButton();
-    isDrawingCluster = false;
-    currentDrawingCluster = null;
+if (detailsPanel) {
+    detailsPanel.innerHTML = `<h3 id="details-food-name"></h3><img id="details-food-image" src="" alt="選択された食品の画像" style="display:none;"><div id="details-food-info"></div><p id="details-placeholder" class="info-text" style="display:block;">食品の「i」ボタンをクリックすると、ここに詳細情報が表示されます。</p>`;
+}
+if (statusMessage) updateStatusMessage("");
+if (finishPlacementBtn) finishPlacementBtn.style.display = 'none';
+if (goToFeedbackBtn) goToFeedbackBtn.style.display = 'none';
+if (saveFeedbackAndDataBtn) saveFeedbackAndDataBtn.style.display = 'none';
+if (clusterCanvas) clusterCanvas.classList.remove('active-drawing');
+removeActiveDeleteButton();
+isDrawingCluster = false;
+currentDrawingCluster = null;
 }
 
 function initializeApp() {
-    console.log("[DEBUG] initializeApp: Starting application initialization.");
-    appContainer = document.getElementById('app');
-    screen1 = document.getElementById('screen1');
-    screen2 = document.getElementById('screen2');
-    screen3 = document.getElementById('screen3');
-    screen4 = document.getElementById('screen4');
-    screen5 = document.getElementById('screen5');
-    subjectNameInput = document.getElementById('subjectName');
-    subjectAgeInput = document.getElementById('subjectAge');
-    subjectEmailInput = document.getElementById('subjectEmail');
-    goToScreen2Btn = document.getElementById('goToScreen2Btn');
-    startExperimentBtn = document.getElementById('startExperimentBtn');
-    canvasContainer = document.getElementById('canvas-container');
-    clusterCanvas = document.getElementById('clusterCanvas');
-    ctx = clusterCanvas ? clusterCanvas.getContext('2d') : null;
-    finishPlacementBtn = document.getElementById('finishPlacementBtn');
-    goToFeedbackBtn = document.getElementById('goToFeedbackBtn');
-    saveFeedbackAndDataBtn = document.getElementById('saveFeedbackAndDataBtn');
-    submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
-    loadingSpinner = document.getElementById('loadingSpinner');
-    statusMessage = document.getElementById('statusMessage');
-    detailsPanel = document.getElementById('details-panel');
-    backToScreen1Btn = document.getElementById('backToScreen1Btn');
-    backToScreen2Btn = document.getElementById('backToScreen2Btn');
-    backToStartBtn2 = document.getElementById('backToStartBtn2');
+console.log("[DEBUG] initializeApp: Starting application initialization.");
+appContainer = document.getElementById('app');
+screen1 = document.getElementById('screen1');
+screen2 = document.getElementById('screen2');
+screen3 = document.getElementById('screen3');
+screen4 = document.getElementById('screen4');
+screen5 = document.getElementById('screen5');
+subjectNameInput = document.getElementById('subjectName');
+subjectAgeInput = document.getElementById('subjectAge');
+subjectEmailInput = document.getElementById('subjectEmail');
+goToScreen2Btn = document.getElementById('goToScreen2Btn');
+startExperimentBtn = document.getElementById('startExperimentBtn');
+canvasContainer = document.getElementById('canvas-container');
+clusterCanvas = document.getElementById('clusterCanvas');
+ctx = clusterCanvas ? clusterCanvas.getContext('2d') : null;
+finishPlacementBtn = document.getElementById('finishPlacementBtn');
+goToFeedbackBtn = document.getElementById('goToFeedbackBtn');
+saveFeedbackAndDataBtn = document.getElementById('saveFeedbackAndDataBtn');
+submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
+loadingSpinner = document.getElementById('loadingSpinner');
+statusMessage = document.getElementById('statusMessage');
+detailsPanel = document.getElementById('details-panel');
+backToScreen1Btn = document.getElementById('backToScreen1Btn');
+backToScreen2Btn = document.getElementById('backToScreen2Btn');
+backToStartBtn2 = document.getElementById('backToStartBtn2');
 
-    if (goToScreen2Btn) {
-        goToScreen2Btn.addEventListener('click', () => {
-            const name = subjectNameInput.value.trim();
-            const ageString = subjectAgeInput.value.trim();
-            const email = subjectEmailInput.value.trim();
-            if (!name || !ageString || !email) { alert("全ての項目を入力してください。"); return; }
-            if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert("有効なメールアドレスを入力してください。"); return; }
-            const ageNum = parseInt(ageString, 10);
-            if (isNaN(ageNum) || ageNum < 18 || ageNum > 99) { alert("年齢は18歳から99歳の間で、有効な数値を入力してください。"); return; }
-            experimentData.subjectInfo = { name, age: ageNum, email };
-            if (screen2) { showScreen(screen2); currentMode = 'instructions'; }
-        });
-    }
-
-    if (startExperimentBtn) {
-        startExperimentBtn.addEventListener('click', () => {
-            if (!screen3) return;
-            showScreen(screen3);
-            currentMode = 'placement';
-            try { initializeExperiment(); }
-            catch (e) { console.error('[CRITICAL_ERROR] Error in initializeExperiment:', e); alert("実験初期化エラー。"); }
-        });
-    }
-
-    if (finishPlacementBtn) {
-        finishPlacementBtn.addEventListener('click', () => {
-            if (!clusterCanvas || !goToFeedbackBtn) return;
-            currentMode = 'clustering';
-            removeActiveDeleteButton();
-            experimentData.placementTime = getCurrentTimestamp();
-            experimentData.moveHistory.push({ timestamp: experimentData.placementTime, eventType: 'placementEnd', target: 'finishPlacementBtn', details: { message: 'クラスター作成フェーズへ移行' } });
-            Object.values(foodContainers).forEach(container => {
-                const handle = container.querySelector('.drag-handle');
-                if (handle) { handle.style.cursor = 'default'; handle.onmousedown = null; }
-            });
-            displayFoodDetails(null);
-            clusterCanvas.classList.add('active-drawing');
-            finishPlacementBtn.style.display = 'none';
-            goToFeedbackBtn.style.display = 'inline-block';
-            updateStatusMessage('食品を円で囲んでクラスターを作成 (3つ以上中に入れる)、または既存のクラスターをクリックして削除できます。');
-        });
-    }
-
-    if (goToFeedbackBtn) {
-        goToFeedbackBtn.addEventListener('click', () => {
-            currentMode = 'clusterFeedback';
-            removeActiveDeleteButton();
-            updateStatusMessage('作成した各クラスターについて、以下の項目を記入してください。');
-            if (detailsPanel) {
-                detailsPanel.innerHTML = '';
-                detailsPanel.scrollTop = 0;
-                const placeholder = document.createElement('p');
-                placeholder.id = 'details-placeholder';
-                placeholder.className = 'info-text';
-                detailsPanel.appendChild(placeholder);
-                if (experimentData.clusters.length === 0) {
-                    placeholder.textContent = '作成されたクラスターはありません。このまま保存してください。';
-                    placeholder.style.display = 'block';
-                } else {
-                    placeholder.style.display = 'none';
-                    experimentData.clusters.forEach((cluster, index) => {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'cluster-feedback-item';
-                        const labels = cluster.items.map(name => (foodList.find(f => f.name === name) || {}).label || name).join('、 ');
-                        const itemsText = labels.length > 0 ? ` (内容: ${labels})` : ' (内容なし)';
-                        itemDiv.innerHTML = `<h4>クラスター: ${cluster.name}${itemsText}</h4>
-                            <label for="reasonCreated_${index}">このクラスターを作成した理由:</label><textarea id="reasonCreated_${index}" data-cluster-index="${index}" data-feedback-type="reasonCreated" rows="3" placeholder="例：これらは「洋食」という点で似ていると感じたため。"></textarea>
-                            <label for="meaning_${index}">どのような意味があると思いますか？:</label><textarea id="meaning_${index}" data-cluster-index="${index}" data-feedback-type="meaning" rows="3" placeholder="例：このグループは「子どもが好きな夕食メニュー」と言えるかもしれません。"></textarea>
-                            <label for="reasonName_${index}">その名前にした理由:</label><textarea id="reasonName_${index}" data-cluster-index="${index}" data-feedback-type="reasonName" rows="3" placeholder="例：グループの特徴をそのまま名前にしました。"></textarea>`;
-                        detailsPanel.appendChild(itemDiv);
-                    });
-                }
-            }
-            if(goToFeedbackBtn) goToFeedbackBtn.style.display = 'none';
-            if(saveFeedbackAndDataBtn) saveFeedbackAndDataBtn.style.display = 'inline-block';
-            if(clusterCanvas) clusterCanvas.classList.remove('active-drawing');
-            document.querySelectorAll('.food-container .info-button').forEach(btn => btn.style.pointerEvents = 'none');
-            experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'enterClusterFeedback', target: 'application', details: { clusterCount: experimentData.clusters.length } });
-        });
-    }
-
-    if (saveFeedbackAndDataBtn) {
-        saveFeedbackAndDataBtn.addEventListener('click', () => {
-            let allProvided = true;
-            if (experimentData.clusters.length > 0) {
-                for (let i = 0; i < experimentData.clusters.length; i++) {
-                    const reasonCreatedEl = document.getElementById(`reasonCreated_${i}`);
-                    const meaningEl = document.getElementById(`meaning_${i}`);
-                    const reasonNameEl = document.getElementById(`reasonName_${i}`);
-                    const checkAndMark = (el) => { if (!el || el.value.trim() === '') { allProvided = false; if (el) el.classList.add('feedback-missing'); return false; } else if (el) { el.classList.remove('feedback-missing'); } return true; };
-                    checkAndMark(reasonCreatedEl); checkAndMark(meaningEl); checkAndMark(reasonNameEl);
-                }
-            }
-            if (!allProvided) { alert("全てのクラスターについて、3つのフィードバック項目すべてを記入してください。\n（未記入の項目は枠が赤くなっています）"); return; }
-            experimentData.clusters.forEach((cluster, index) => {
-                cluster.feedback = {
-                    reasonCreated: document.getElementById(`reasonCreated_${index}`)?.value.trim() || '',
-                    meaning: document.getElementById(`meaning_${index}`)?.value.trim() || '',
-                    reasonName: document.getElementById(`reasonName_${index}`)?.value.trim() || ''
-                };
-            });
-            const form = document.getElementById('surveyForm');
-            if(form) {
-                form.innerHTML = ''; // Clear previous form
-                const fullSurveyHTML = `
-                <fieldset class="survey-section"><legend>A. 実験の全体的な感想について</legend><div class="survey-question"><p class="question-text">1. 今回の実験は楽しかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q1_fun" value="1" required><span>1</span></label><label><input type="radio" name="q1_fun" value="2"><span>2</span></label><label><input type="radio" name="q1_fun" value="3"><span>3</span></label><label><input type="radio" name="q1_fun" value="4"><span>4</span></label><label><input type="radio" name="q1_fun" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">2. 食品を配置する作業は、直感的で分かりやすかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q2_intuitive" value="1" required><span>1</span></label><label><input type="radio" name="q2_intuitive" value="2"><span>2</span></label><label><input type="radio" name="q2_intuitive" value="3"><span>3</span></label><label><input type="radio" name="q2_intuitive" value="4"><span>4</span></label><label><input type="radio" name="q2_intuitive" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">3. 食品をどこに配置するか、判断に迷うことが多かった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q3_confused" value="1" required><span>1</span></label><label><input type="radio" name="q3_confused" value="2"><span>2</span></label><label><input type="radio" name="q3_confused" value="3"><span>3</span></label><label><input type="radio" name="q3_confused" value="4"><span>4</span></label><label><input type="radio" name="q3_confused" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div></fieldset>
-                <fieldset class="survey-section"><legend>B. ご自身の思考プロセスや戦略について</legend><div class="survey-question"><p class="question-text">4. 実験を始める前に、ある程度の配置計画を立てていた</p><div class="likert-scale"><span></span><div class="likert-options"><label><input type="radio" name="q4_plan" value="1" required><span>1</span></label><label><input type="radio" name="q4_plan" value="2"><span>2</span></label><label><input type="radio" name="q4_plan" value="3"><span>3</span></label><label><input type="radio" name="q4_plan" value="4"><span>4</span></label><label><input type="radio" name="q4_plan" value="5"><span>5</span></label></div><span></span></div></div><div class="survey-question"><p class="question-text">5. 個々の食品の関係よりも、全体のバランスを考えながら配置した</p><div class="likert-scale"><span></span><div class="likert-options"><label><input type="radio" name="q5_balance" value="1" required><span>1</span></label><label><input type="radio" name="q5_balance" value="2"><span>2</span></label><label><input type="radio" name="q5_balance" value="3"><span>3</span></label><label><input type="radio" name="q5_balance" value="4"><span>4</span></label><label><input type="radio" name="q5_balance" value="5"><span>5</span></label></div><span></span></div></div><div class="survey-question"><p class="question-text">6. グループ分けをする際、見た目の類似性を重視した</p><div class="likert-scale"><span></span><div class="likert-options"><label><input type="radio" name="q6_visual" value="1" required><span>1</span></label><label><input type="radio" name="q6_visual" value="2"><span>2</span></label><label><input type="radio" name="q6_visual" value="3"><span>3</span></label><label><input type="radio" name="q6_visual" value="4"><span>4</span></label><label><input type="radio" name="q6_visual" value="5"><span>5</span></label></div><span></span></div></div><div class="survey-question"><p class="question-text">7. グループ分けをする際、味や食文化といった抽象的な関連性を重視した</p><div class="likert-scale"><span></span><div class="likert-options"><label><input type="radio" name="q7_abstract" value="1" required><span>1</span></label><label><input type="radio" name="q7_abstract" value="2"><span>2</span></label><label><input type="radio" name="q7_abstract" value="3"><span>3</span></label><label><input type="radio" name="q7_abstract" value="4"><span>4</span></label><label><input type="radio" name="q7_abstract" value="5"><span>5</span></label></div><span></span></div></div><div class="survey-question"><p class="question-text">8. 最終的な食品の配置とグループ分けに、自分自身で納得している</p><div class="likert-scale"><span></span><div class="likert-options"><label><input type="radio" name="q8_satisfied" value="1" required><span>1</span></label><label><input type="radio" name="q8_satisfied" value="2"><span>2</span></label><label><input type="radio" name="q8_satisfied" value="3"><span>3</span></label><label><input type="radio" name="q8_satisfied" value="4"><span>4</span></label><label><input type="radio" name="q8_satisfied" value="5"><span>5</span></label></div><span></span></div></div></fieldset>
-                <fieldset class="survey-section"><legend>C. あなたの食生活について</legend><div class="survey-question"><p class="question-text">9. 普段、どのくらいの頻度で自炊をしますか？</p><div class="likert-scale" id="q9_cooking_freq"><label><input type="radio" name="q9_cooking_freq" value="1" required><span>全くしない</span></label><label><input type="radio" name="q9_cooking_freq" value="2"><span>月に数回</span></label><label><input type="radio" name="q9_cooking_freq" value="3"><span>週に1-2回</span></label><label><input type="radio" name="q9_cooking_freq" value="4"><span>週に3-5回</span></label><label><input type="radio" name="q9_cooking_freq" value="5"><span>ほぼ毎日</span></label></div></div><div class="survey-question"><p class="question-text">10. 食や料理に対する関心は強い方だ</p><div class="likert-scale"><span></span><div class="likert-options"><label><input type="radio" name="q10_interest" value="1" required><span>1</span></label><label><input type="radio" name="q10_interest" value="2"><span>2</span></label><label><input type="radio" name="q10_interest" value="3"><span>3</span></label><label><input type="radio" name="q10_interest" value="4"><span>4</span></label><label><input type="radio" name="q10_interest" value="5"><span>5</span></label></div><span></span></div></div><div class="survey-question"><p class="question-text">11. 冷凍食品を食べる機会は多い</p><div class="likert-scale"><span></span><div class="likert-options"><label><input type="radio" name="q11_frozen" value="1" required><span>1</span></label><label><input type="radio" name="q11_frozen" value="2"><span>2</span></label><label><input type="radio" name="q11_frozen" value="3"><span>3</span></label><label><input type="radio" name="q11_frozen" value="4"><span>4</span></label><label><input type="radio" name="q11_frozen" value="5"><span>5</span></label></div><span></span></div></div><div class="survey-question"><p class="question-text">12. 今回の実験で表示された食品のうち、知らなかった、または何かわからなかったものがあれば、全てにチェックを入れてください。</p><div class="checkbox-group" id="q12_unknown_foods"></div></div></fieldset>
-                <button id="submitAndFinishBtn" type="submit">アンケートを回答し、データを送信する</button>
-                `;
-                form.innerHTML = fullSurveyHTML;
-                const unknownFoodsContainer = document.getElementById('q12_unknown_foods');
-                if (unknownFoodsContainer) {
-                    foodList.forEach(food => {
-                        const label = document.createElement('label');
-                        const checkbox = document.createElement('input');
-                        checkbox.type = 'checkbox';
-                        checkbox.name = 'unknown_foods[]';
-                        checkbox.value = food.name;
-                        label.appendChild(checkbox);
-                        label.appendChild(document.createTextNode(` ${food.label}`));
-                        unknownFoodsContainer.appendChild(label);
-                    });
-                }
-            }
-            showScreen(screen4);
-        });
-    }
-
-    if (submitAndFinishBtn) {
-        submitAndFinishBtn.addEventListener('click', async (e) => {
-            e.preventDefault();
-            const form = document.getElementById('surveyForm');
-            if (!form.checkValidity()) {
-                alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
-                form.reportValidity();
-                return;
-            }
-            const surveyData = {};
-            const formData = new FormData(form);
-            for (const [key, value] of formData.entries()) {
-                if (key.endsWith('[]')) {
-                    const cleanKey = key.slice(0, -2);
-                    if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
-                    surveyData[cleanKey].push(value);
-                } else {
-                    surveyData[key] = value;
-                }
-            }
-            if (!surveyData.unknown_foods) {
-                surveyData.unknown_foods = [];
-            }
-            experimentData.survey = surveyData;
-            showLoading(true, "データを送信中...");
-            try {
-                const gasWebAppUrl = 'ここにあなたのウェブアプリURL';
-                const dataToSave = { ...experimentData };
-                dataToSave.experimentEndTimeISO = new Date().toISOString();
-                await fetch(gasWebAppUrl, {
-                    method: 'POST',
-                    mode: 'no-cors',
-                    redirect: 'follow',
-                    body: JSON.stringify(dataToSave),
-                    headers: {
-                        'Content-Type': 'text/plain;charset=utf-8',
-                    }
-                });
-                showScreen(screen5);
-            } catch (error) {
-                console.error('[CRITICAL_ERROR] Data submission failed:', error);
-                alert('データの送信に失敗しました。管理者にお知らせください。');
-            } finally {
-                showLoading(false);
-            }
-        });
-    }
-
-    if (backToScreen1Btn) {
-        backToScreen1Btn.addEventListener('click', () => {
-            if (confirm("前の画面に戻りますか？")) {
-                showScreen(screen1);
-                currentMode = 'intro';
-            }
-        });
-    }
-    if (backToScreen2Btn) {
-        backToScreen2Btn.addEventListener('click', () => {
-            if (confirm("実験説明画面に戻りますか？現在の配置やクラスターの情報はリセットされます。よろしいですか？")) {
-                resetScreen3UI();
-                showScreen(screen2);
-                currentMode = 'instructions';
-            }
-        });
-    }
-    if (backToStartBtn2) {
-        backToStartBtn2.addEventListener('click', () => {
-            if (confirm("最初の画面に戻りますか？")) {
-                showScreen(screen1);
-                currentMode = 'intro';
-            }
-        });
-    }
-
-    if (clusterCanvas) {
-        clusterCanvas.addEventListener('mousedown', handleClusterMouseDown);
-        clusterCanvas.addEventListener('click', handleClusterClick);
-    }
-
-    try { loadFoodListFromLocalStorage(); } catch (e) { console.error("Error loading food list:", e); }
-    try {
-        if (screen1) showScreen(screen1); else { console.error("CRITICAL: screen1 not found!"); alert("初期画面エラー"); }
-    } catch (e) { console.error("Error showing screen1:", e); }
-    console.log("[DEBUG] initializeApp: Finished.");
+if (goToScreen2Btn) {
+    goToScreen2Btn.addEventListener('click', () => {
+        const name = subjectNameInput.value.trim();
+        const ageString = subjectAgeInput.value.trim();
+        const email = subjectEmailInput.value.trim();
+        if (!name || !ageString || !email) { alert("全ての項目を入力してください。"); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { alert("有効なメールアドレスを入力してください。"); return; }
+        const ageNum = parseInt(ageString, 10);
+        if (isNaN(ageNum) || ageNum < 18 || ageNum > 99) { alert("年齢は18歳から99歳の間で、有効な数値を入力してください。"); return; }
+        experimentData.subjectInfo = { name, age: ageNum, email };
+        if (screen2) { showScreen(screen2); currentMode = 'instructions'; }
+    });
 }
 
-function initializeExperiment() {
-    let infoViewStartTime = null;
-    let lastViewedFood = null;
-    console.log('[DEBUG] initializeExperiment: Started. Current mode is:', currentMode);
-    if (currentMode !== 'placement') {
+if (startExperimentBtn) {
+    startExperimentBtn.addEventListener('click', () => {
+        if (!screen3) return;
+        showScreen(screen3);
         currentMode = 'placement';
-    }
-    if (!canvasContainer || !clusterCanvas || (clusterCanvas && !ctx) || !detailsPanel) {
-        updateStatusMessage("エラー: 実験エリアの初期化に失敗しました。");
-        return;
-    }
-
-    try {
-        clusterCanvas.width = canvasContainer.clientWidth;
-        clusterCanvas.height = canvasContainer.clientHeight;
-        ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height);
-
-        experimentData.startTime = Date.now();
-        experimentData.moveHistory = [];
-        experimentData.clusters = [];
-        experimentData.positions = [];
-
-        if (detailsPanel) {
-            detailsPanel.innerHTML = `<h3 id="details-food-name"></h3><img id="details-food-image" src="" alt="選択された食品の画像" style="display:none;"><div id="details-food-info"></div><p id="details-placeholder" class="info-text" style="display:block;">食品の[i]ボタンをクリックすると、ここに詳細情報が表示されます。</p>`;
-        }
-        displayFoodDetails(null);
-
-        experimentData.moveHistory.push({ timestamp: 0, eventType: 'experimentStart', target: 'experiment', details: { message: '配置フェーズ開始' } });
-        canvasContainer.querySelectorAll('.food-container').forEach(fc => fc.remove());
-        removeActiveDeleteButton();
-        foodContainers = {};
-
-        foodList.forEach((food) => {
-            const foodContainer = document.createElement('div');
-            foodContainer.className = 'food-container';
-            foodContainer.dataset.name = food.name;
-
-            const dragHandle = document.createElement('div');
-            dragHandle.className = 'drag-handle';
-            const actionButton = document.createElement('div');
-            actionButton.className = 'info-button'; actionButton.textContent = 'i';
-            actionButton.title = `${food.label}について`;
-            dragHandle.appendChild(actionButton);
-            foodContainer.appendChild(dragHandle);
-            
-            const img = document.createElement('img');
-            img.src = food.imgSrc; img.alt = food.label; img.className = 'food-image';
-            img.onerror = () => { img.alt = `${food.label} (画像読込失敗)`; };
-            foodContainer.appendChild(img);
-            canvasContainer.appendChild(foodContainer);
-            
-            const itemW = foodContainer.offsetWidth, itemH = foodContainer.offsetHeight;
-            const maxW = canvasContainer.clientWidth, maxH = canvasContainer.clientHeight;
-            const buffer = 5;
-            let initialX = Math.max(buffer, Math.floor(Math.random() * (maxW - itemW - 2 * buffer)) + buffer);
-            let initialY = Math.max(buffer, Math.floor(Math.random() * (maxH - itemH - 2 * buffer)) + buffer);
-            if (itemW === 0 || itemH === 0 || maxW <= itemW + 2 * buffer || maxH <= itemH + 2 * buffer) {
-                initialX = buffer; initialY = buffer;
-            }
-
-            foodContainer.style.left = `${initialX}px`; foodContainer.style.top = `${initialY}px`;
-            experimentData.positions.push({ name: food.name, x: initialX, y: initialY });
-            experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'initialPlace', target: food.name, position: { x: initialX, y: initialY } });
-            foodContainers[food.name] = foodContainer;
-            makeDraggable(foodContainer, dragHandle, food, { infoViewStartTime, lastViewedFood });
-        });
-        updateStatusMessage('食品の青いバーをドラッグして自由に配置してください。');
-        if (finishPlacementBtn) finishPlacementBtn.style.display = 'inline-block';
-        if (goToFeedbackBtn) goToFeedbackBtn.style.display = 'none';
-        if (saveFeedbackAndDataBtn) saveFeedbackAndDataBtn.style.display = 'none';
-        if (clusterCanvas) clusterCanvas.classList.remove('active-drawing');
-        document.querySelectorAll('.food-container .info-button').forEach(btn => btn.style.pointerEvents = 'auto');
-    } catch (error) {
-        console.error("[CRITICAL_ERROR] Error within initializeExperiment main block:", error);
-        updateStatusMessage("エラー: 食品アイテムの配置中に問題が発生しました。");
-    }
-    console.log('[DEBUG] initializeExperiment finished.');
+        try { initializeExperiment(); }
+        catch (e) { console.error('[CRITICAL_ERROR] Error in initializeExperiment:', e); alert("実験初期化エラー。"); }
+    });
 }
 
-function makeDraggable(element, handle, food, experimentScope) {
-    const { infoViewStartTime, lastViewedFood } = experimentScope;
+if (finishPlacementBtn) {
+    finishPlacementBtn.addEventListener('click', () => {
+        if (!clusterCanvas || !goToFeedbackBtn) return;
+        currentMode = 'clustering';
+        removeActiveDeleteButton();
+        experimentData.placementTime = getCurrentTimestamp();
+        experimentData.moveHistory.push({ timestamp: experimentData.placementTime, eventType: 'placementEnd', target: 'finishPlacementBtn', details: { message: 'クラスター作成フェーズへ移行' } });
+        Object.values(foodContainers).forEach(container => {
+            const handle = container.querySelector('.drag-handle');
+            if (handle) { handle.style.cursor = 'default'; handle.onmousedown = null; }
+        });
+        displayFoodDetails(null);
+        clusterCanvas.classList.add('active-drawing');
+        finishPlacementBtn.style.display = 'none';
+        goToFeedbackBtn.style.display = 'inline-block';
+        updateStatusMessage('食品を円で囲んでクラスターを作成 (3つ以上中に入れる)、または既存のクラスターをクリックして削除できます。');
+    });
+}
 
-    const actionButton = handle.querySelector('.info-button');
-    actionButton.addEventListener('click', (e) => {
-        e.stopPropagation();
-        if (currentMode === 'placement' || currentMode === 'clustering') {
-            if (experimentScope.infoViewStartTime && experimentScope.lastViewedFood) {
-                const duration = Math.floor((Date.now() - experimentScope.infoViewStartTime) / 1000);
-                experimentData.moveHistory.push({
-                    timestamp: getCurrentTimestamp(),
-                    eventType: 'infoViewEnd',
-                    target: experimentScope.lastViewedFood.name,
-                    details: { duration: duration }
+if (goToFeedbackBtn) {
+    goToFeedbackBtn.addEventListener('click', () => {
+        currentMode = 'clusterFeedback';
+        removeActiveDeleteButton();
+        updateStatusMessage('作成した各クラスターについて、以下の項目を記入してください。');
+        if (detailsPanel) {
+            detailsPanel.innerHTML = '';
+            detailsPanel.scrollTop = 0;
+            const placeholder = document.createElement('p');
+            placeholder.id = 'details-placeholder';
+            placeholder.className = 'info-text';
+            detailsPanel.appendChild(placeholder);
+            if (experimentData.clusters.length === 0) {
+                placeholder.textContent = '作成されたクラスターはありません。このまま保存してください。';
+                placeholder.style.display = 'block';
+            } else {
+                placeholder.style.display = 'none';
+                experimentData.clusters.forEach((cluster, index) => {
+                    const itemDiv = document.createElement('div');
+                    itemDiv.className = 'cluster-feedback-item';
+                    const labels = cluster.items.map(name => (foodList.find(f => f.name === name) || {}).label || name).join('、 ');
+                    const itemsText = labels.length > 0 ? ` (内容: ${labels})` : ' (内容なし)';
+                    itemDiv.innerHTML = `<h4>クラスター: ${cluster.name}${itemsText}</h4>
+                        <label for="reasonCreated_${index}">このクラスターを作成した理由:</label><textarea id="reasonCreated_${index}" data-cluster-index="${index}" data-feedback-type="reasonCreated" rows="3" placeholder="例：これらは「洋食」という点で似ていると感じたため。"></textarea>
+                        <label for="meaning_${index}">どのような意味があると思いますか？:</label><textarea id="meaning_${index}" data-cluster-index="${index}" data-feedback-type="meaning" rows="3" placeholder="例：このグループは「子どもが好きな夕食メニュー」と言えるかもしれません。"></textarea>
+                        <label for="reasonName_${index}">その名前にした理由:</label><textarea id="reasonName_${index}" data-cluster-index="${index}" data-feedback-type="reasonName" rows="3" placeholder="例：グループの特徴をそのまま名前にしました。"></textarea>`;
+                    detailsPanel.appendChild(itemDiv);
                 });
             }
-            displayFoodDetails(food);
-            experimentScope.infoViewStartTime = Date.now();
-            experimentScope.lastViewedFood = food;
-            experimentData.moveHistory.push({
-                timestamp: getCurrentTimestamp(),
-                eventType: 'infoViewStart',
-                target: food.name
-            });
         }
-    });
-
-    handle.onmousedown = (e) => {
-        if (experimentScope.infoViewStartTime && experimentScope.lastViewedFood) {
-            const duration = Math.floor((Date.now() - experimentScope.infoViewStartTime) / 1000);
-            experimentData.moveHistory.push({
-                timestamp: getCurrentTimestamp(),
-                eventType: 'infoViewEnd',
-                target: experimentScope.lastViewedFood.name,
-                details: { duration: duration }
-            });
-            experimentScope.infoViewStartTime = null;
-            experimentScope.lastViewedFood = null;
-        }
-        onMouseDown(e, element, handle);
-    };
-}
-
-function onMouseDown(e, element, handle) {
-    if (currentMode !== 'placement' || e.button !== 0) {
-        handle.style.cursor = 'default';
-        return;
-    }
-    let isDragging = true;
-    element.classList.add('dragging');
-    handle.style.cursor = 'grabbing';
-
-    let iMouseX = e.clientX;
-    let iMouseY = e.clientY;
-    let iElemX = element.offsetLeft;
-    let iElemY = element.offsetTop;
-
-    const onMouseMove = (moveEvent) => {
-        if (!isDragging) return;
-        let nX = iElemX + (moveEvent.clientX - iMouseX);
-        let nY = iElemY + (moveEvent.clientY - iMouseY);
-        nX = Math.max(0, Math.min(nX, canvasContainer.clientWidth - element.offsetWidth));
-        nY = Math.max(0, Math.min(nY, canvasContainer.clientHeight - element.offsetHeight));
-        element.style.left = `${nX}px`;
-        element.style.top = `${nY}px`;
-    };
-
-    const onMouseUp = () => {
-        if (!isDragging) return;
-        isDragging = false;
-        element.classList.remove('dragging');
-        handle.style.cursor = (currentMode === 'placement') ? 'grab' : 'default';
-        document.removeEventListener('mousemove', onMouseMove);
-        document.removeEventListener('mouseup', onMouseUp);
-
-        const fX = element.offsetLeft, fY = element.offsetTop;
-        let pE = experimentData.positions.find(p => p.name === element.dataset.name);
-        if (pE) {
-            pE.x = fX;
-            pE.y = fY;
-        } else {
-            experimentData.positions.push({ name: element.dataset.name, x: fX, y: fY });
-        }
-        experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'dragEnd', target: element.dataset.name, position: { x: fX, y: fY } });
-    };
-
-    document.addEventListener('mousemove', onMouseMove);
-    document.addEventListener('mouseup', onMouseUp);
-
-    experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'dragStart', target: element.dataset.name, position: { x: iElemX, y: iElemY } });
-}
-
-function handleClusterMouseDown(e) {
-    if (currentMode !== 'clustering' || isDrawingCluster || !clusterCanvas || !ctx) return;
-    removeActiveDeleteButton(); isDrawingCluster = true;
-    const rect = clusterCanvas.getBoundingClientRect();
-    const startX = e.clientX - rect.left, startY = e.clientY - rect.top;
-    currentDrawingCluster = {
-        id: `cluster_${Date.now()}_${Math.random().toString(36).substr(2, 5)}`, type: 'circle',
-        centerX: startX, centerY: startY, radius: 0,
-        name: '', items: [], color: getRandomClusterColor(), feedback: {}
-    };
-    clusterCanvas.addEventListener('mousemove', handleClusterMouseMove);
-    clusterCanvas.addEventListener('mouseup', handleClusterMouseUp);
-    clusterCanvas.addEventListener('mouseleave', handleClusterMouseUp);
-    experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterDrawStart', target: 'clusterCanvas', details: { type: 'circle', centerX: startX, centerY: startY } });
-}
-
-function handleClusterMouseMove(e) {
-    if (!isDrawingCluster || !currentDrawingCluster || currentDrawingCluster.type !== 'circle') return;
-    const rect = clusterCanvas.getBoundingClientRect();
-    const currentX = e.clientX - rect.left, currentY = e.clientY - rect.top;
-    const dx = currentX - currentDrawingCluster.centerX, dy = currentY - currentDrawingCluster.centerY;
-    currentDrawingCluster.radius = Math.sqrt(dx * dx + dy * dy);
-
-    ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height);
-    drawAllClusters();
-
-    const drawingFillColor = currentDrawingCluster.color.startsWith('rgb(') ?
-        currentDrawingCluster.color.replace('rgb(', 'rgba(').replace(')', ', 0.1)') :
-        `${currentDrawingCluster.color}1A`;
-
-    drawCircle(currentDrawingCluster.centerX, currentDrawingCluster.centerY, currentDrawingCluster.radius, currentDrawingCluster.color, drawingFillColor, 2, true);
-}
-
-function handleClusterMouseUp(e) {
-    if (!isDrawingCluster || !currentDrawingCluster || currentDrawingCluster.type !== 'circle') return;
-    isDrawingCluster = false;
-    clusterCanvas.removeEventListener('mousemove', handleClusterMouseMove);
-    clusterCanvas.removeEventListener('mouseup', handleClusterMouseUp);
-    clusterCanvas.removeEventListener('mouseleave', handleClusterMouseUp);
-
-    if (currentDrawingCluster.radius < 10) {
-        updateStatusMessage('クラスターが小さすぎます。もう一度描画してください。');
-        currentDrawingCluster = null; ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height); drawAllClusters(); return;
-    }
-    identifyItemsInCluster(currentDrawingCluster);
-    if (currentDrawingCluster.items.length < 3) {
-        updateStatusMessage(`クラスター内の食品が${currentDrawingCluster.items.length}個です。3つ以上になるように作成してください。`);
-        experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterDrawCancel', target: 'clusterCanvas', details: { message: 'Less than 3 items', itemCount: currentDrawingCluster.items.length } });
-        currentDrawingCluster = null; ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height); drawAllClusters(); return;
-    }
-    const clusterName = prompt("このクラスターの名前を入力してください:", `クラスター${experimentData.clusters.length + 1}`);
-    if (clusterName && clusterName.trim() !== "") {
-        currentDrawingCluster.name = clusterName.trim();
-        experimentData.clusters.push(currentDrawingCluster);
-        experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterCreated', target: currentDrawingCluster.name, details: { id: currentDrawingCluster.id, type: 'circle', radius: currentDrawingCluster.radius, itemCount: currentDrawingCluster.items.length } });
-    } else {
-        experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterDrawCancel', target: 'clusterCanvas', details: { message: 'No name provided for circle cluster' } });
-    }
-    currentDrawingCluster = null; ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height); drawAllClusters();
-}
-
-function identifyItemsInCluster(cluster) {
-    if (!cluster || cluster.type !== 'circle' || cluster.radius <= 0) return;
-    cluster.items = [];
-    Object.values(foodContainers).forEach(container => {
-        const rect = container.getBoundingClientRect();
-        const cRect = canvasContainer.getBoundingClientRect();
-        const iCX = (rect.left - cRect.left) + rect.width / 2, iCY = (rect.top - cRect.top) + rect.height / 2;
-        const dX = iCX - cluster.centerX, dY = iCY - cluster.centerY;
-        if (Math.sqrt(dX * dX + dY * dY) <= cluster.radius) cluster.items.push(container.dataset.name);
+        if(goToFeedbackBtn) goToFeedbackBtn.style.display = 'none';
+        if(saveFeedbackAndDataBtn) saveFeedbackAndDataBtn.style.display = 'inline-block';
+        if(clusterCanvas) clusterCanvas.classList.remove('active-drawing');
+        document.querySelectorAll('.food-container .info-button').forEach(btn => btn.style.pointerEvents = 'none');
+        experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'enterClusterFeedback', target: 'application', details: { clusterCount: experimentData.clusters.length } });
     });
 }
 
-function handleClusterClick(e) {
-    if (currentMode !== 'clustering' || isDrawingCluster || !clusterCanvas || !ctx || experimentData.clusters.length === 0) return;
-    removeActiveDeleteButton(); const rect = clusterCanvas.getBoundingClientRect();
-    const cX = e.clientX - rect.left, cY = e.clientY - rect.top;
-    let clClicked = null, clIdx = -1;
-    for (let i = experimentData.clusters.length - 1; i >= 0; i--) {
-        const cl = experimentData.clusters[i];
-        if (cl.type === 'circle') {
-            const dX_ = cX - cl.centerX, dY_ = cY - cl.centerY;
-            if (Math.sqrt(dX_ * dX_ + dY_ * dY_) <= cl.radius) { clClicked = cl; clIdx = i; break; }
+if (saveFeedbackAndDataBtn) {
+    saveFeedbackAndDataBtn.addEventListener('click', () => {
+        let allProvided = true;
+        if (experimentData.clusters.length > 0) {
+            for (let i = 0; i < experimentData.clusters.length; i++) {
+                const reasonCreatedEl = document.getElementById(`reasonCreated_${i}`);
+                const meaningEl = document.getElementById(`meaning_${i}`);
+                const reasonNameEl = document.getElementById(`reasonName_${i}`);
+                const checkAndMark = (el) => { if (!el || el.value.trim() === '') { allProvided = false; if (el) el.classList.add('feedback-missing'); return false; } else if (el) { el.classList.remove('feedback-missing'); } return true; };
+                checkAndMark(reasonCreatedEl); checkAndMark(meaningEl); checkAndMark(reasonNameEl);
+            }
         }
-    }
-    if (clClicked) {
-        selectedClusterIndexForDeletion = clIdx;
-        createAndShowDeleteButton(clClicked, e.clientX, e.clientY);
-    }
-}
-
-function createAndShowDeleteButton(cluster, screenX, screenY) {
-    removeActiveDeleteButton(); activeDeleteButton = document.createElement('button');
-    activeDeleteButton.id = 'dynamicDeleteClusterBtn'; activeDeleteButton.textContent = `「${cluster.name}」を削除`;
-    document.body.appendChild(activeDeleteButton);
-    activeDeleteButton.style.left = `${screenX + 5}px`; activeDeleteButton.style.top = `${screenY + 5}px`;
-    activeDeleteButton.onclick = () => {
-        if (selectedClusterIndexForDeletion > -1 && selectedClusterIndexForDeletion < experimentData.clusters.length) {
-            const delCl = experimentData.clusters.splice(selectedClusterIndexForDeletion, 1)[0];
-            experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterDelete', target: delCl.name, details: { id: delCl.id } });
-        }
-        selectedClusterIndexForDeletion = -1; removeActiveDeleteButton(); drawAllClusters();
-    };
-}
-
-function removeActiveDeleteButton() {
-    if (activeDeleteButton) { activeDeleteButton.remove(); activeDeleteButton = null; }
-}
-
-function drawCircle(centerX, centerY, radius, strokeStyle, fillStyle, lineWidth, isFilled = true) {
-    if (!ctx || radius <= 0) return; ctx.beginPath();
-    ctx.arc(centerX, centerY, radius, 0, 2 * Math.PI, false);
-    if (strokeStyle) ctx.strokeStyle = strokeStyle; if (lineWidth) ctx.lineWidth = lineWidth; ctx.stroke();
-    if (isFilled && fillStyle) { ctx.fillStyle = fillStyle; ctx.fill(); }
-}
-
-function drawAllClusters() {
-    if (!ctx || !clusterCanvas) return;
-    ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height);
-    experimentData.clusters.forEach(cluster => {
-        if (cluster.type === 'circle' && cluster.radius > 0) {
-            const fillColor = cluster.color.startsWith('rgb(') ?
-                cluster.color.replace('rgb(', 'rgba(').replace(')', ', 0.2)') :
-                `${cluster.color}33`;
-            drawCircle(cluster.centerX, cluster.centerY, cluster.radius, cluster.color, fillColor, 2, true);
-        }
-    });
-}
-
-function getRandomClusterColor() {
-    const r = Math.floor(Math.random() * 180) + 50; const g = Math.floor(Math.random() * 180) + 50; const b = Math.floor(Math.random() * 180) + 50;
-    return `rgb(${r},${g},${b})`;
-}
-
-function generateFileName(info) {
-    const now = new Date();
-    const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
-    const timeStr = `${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}`;
-    const subjectName = info && info.name ? info.name.replace(/\s+/g, '_') : 'UnknownSubject';
-    return `FoodCognitiveMap_${subjectName}_${dateStr}_${timeStr}.json`;
-}
-
-function showLoading(show, message = '') {
-    if (!loadingSpinner || !statusMessage) return;
-    if (show) { loadingSpinner.classList.add('active'); statusMessage.textContent = message || '読み込み中...'; }
-    else { loadingSpinner.classList.remove('active'); }
-}
-
-function updateStatusMessage(message) {
-    if (!statusMessage) return; statusMessage.textContent = message; console.log(`[STATUS] ${message}`);
-}
-
-document.addEventListener('DOMContentLoaded', initializeApp);
+        if (!allProvided) { alert("全てのクラスターについて、3つのフィードバック項目すべてを記入してください。\n（未記入の項目は枠が赤くなっています）"); return; }
+        experimentData.clusters.forEach((cluster, index) => {
+            cluster.feedback = {
+                reasonCreated: document.getElementById(`reasonCreated_${index}`)?.value.trim() || '',
+                meaning: document.getElementById(`meaning_${index}`)?.value.trim() || '',
+                reasonName: document.getElementById(`reasonName_${index}`)?.value.trim() || ''
+            };
+        });
+        const form = document.getElementById('surveyForm');
+        if(form) {
+            form.innerHTML = ''; // Clear previous form
+            const fullSurveyHTML = `
+            <fieldset class="survey-section"><legend>A. 実験の全体的な感想について</legend><div class="survey-question"><p class="question-text">1. 今回の実験は楽しかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q1_fun" value="1" required><span>1</span></label><label><input type="radio" name="q1_fun" value="2"><span>2</span></label><label><input type="radio" name="q1_fun" value="3"><span>3</span></label><label><input type="radio" name="q1_fun" value="4"><span>4</span></label><label><input type="radio" name="q1_fun" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">2. 食品を配置する作業は、直感的で分かりやすかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q2_intuitive" value="1" required><span>1</span></label><label><input type="radio" name="q2_intuitive" value="2"><span>2</span></label><label><input type="radio" name="q2_intuitive" value="3"><span>3</span></label><label><input type="radio" name="q2_intuitive" value="4"><span>4</span></label><label><input type="radio" name="q2_intuitive" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">3. 食品をどこに配置するか、判断に迷うことが多かった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q3_confused" value="1" required><span>1</span></label><label><input type="radio" name="q3_confused" value="2"><span>2</span></label><label><input type="radio" name="q3_confused" value="3"><span>3</span></label><label><input type="radio" name="q3_confused" value="4"><span>4</span></label><label><input type="radio" name="q3_confused" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div></fieldset>
+            <fieldset class="survey-section"><legend>B. ご自身の思考プロセスや戦略について</legend><div class="survey-question"><p class="question-text">4. 実験を始める前に、ある程度の配置計画を立てていた</p><div class="likert-scale"><span>計画なし</span><div class="likert-options"><label><input type="radio" name="q4_plan" value="1" required><span>1</span></label><label><input type="radio" name="q4_plan" value="2"><span>2</span></label><label><input type="radio" name="q4_plan" value="3"><span>3</span></label><label><input type="radio" name="q4_plan" value="4"><span>4</span></label><label><input type="radio" name="q4_plan" value="5"><span>5</span></label></div><span>綿密に計画</span></div></div>
