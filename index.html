@@ -8,6 +8,39 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div class="stepper">
+        <ul>
+            <li class="step">
+                <div class="step-number">1</div>
+                <div class="step-title">情報入力</div>
+            </li>
+            <li class="step">
+                <div class="step-number">2</div>
+                <div class="step-title">説明確認</div>
+            </li>
+            <li class="step">
+                <div class="step-number">3</div>
+                <div class="step-title">食品配置</div>
+            </li>
+            <li class="step">
+                <div class="step-number">4</div>
+                <div class="step-title">グループ作成</div>
+            </li>
+            <li class="step">
+                <div class="step-number">5</div>
+                <div class="step-title">フィードバック</div>
+            </li>
+            <li class="step">
+                <div class="step-number">6</div>
+                <div class="step-title">アンケート</div>
+            </li>
+            <li class="step">
+                <div class="step-number">7</div>
+                <div class="step-title">完了</div>
+            </li>
+        </ul>
+    </div>
+    
     <div id="app" class="screen-container">
         <div id="screen1" class="screen">
             <h2>被験者情報を入力してください</h2>
@@ -19,140 +52,7 @@
         </div>
 
         <div id="screen2" class="screen">
-            <h2>実験のやり方・注意事項</h2>
-
-    <p class="info-text">この実験では、様々な食品の画像を配置し、それらをあなたが意味的に関連すると思うグループ（クラスター）にまとめる作業を行います。画面の指示に従って、楽しみながら進めてください。</p>
-
-    <section class="instructions-layout">
-        <div class="instructions-text">
-            <details open>
-                <summary><strong>配置フェーズ：食品画像の配置</strong></summary>
-                <p>画面上に表示された様々な食品の画像を、マウスでドラッグ＆ドロップして、あなたが「関係が近い」「一緒に思い浮かぶ」と感じる食品同士が物理的に近くになるように、自由に配置してください。</p>
-                <ul>
-                    <li>特に「関連が強い」（全く同じ文脈で考える）食品同士は、できる限り近くに配置してみてください。</li>
-                    <li>逆に、関連が薄いと感じる食品は、少し離して配置すると良いでしょう。</li>
-                    <li>「関係性」に正解はありません。例えば、「調理法が似ている」「同じ食事のシーンで食べる」「味の方向性が近い」といった、あなたの直感的な連想や判断で配置してください。</li>
-                    <li>各食品の上にある <span class="info-button-inline">i</span> ボタンをクリックすると、その食品の詳細情報が表示されますので、配置の参考にしてください。</li>
-                </ul>
-                <p>配置が終わったら、画面下部の「配置を完了し、グループ分けへ」ボタンを押してください。</p>
-            </details>
-
-            <details>
-                <summary><strong>クラスター作成フェーズ：食品のグループ化</strong></summary>
-                <p>配置フェーズで食品を配置し終えたら、次にそれらの食品をあなたが意味的に関連すると思うグループごとに、マウスを使って円で囲んでください。</p>
-                <ul>
-                    <li><strong>3つ以上の食品を含む</strong>グループを作成してください。</li>
-                    <li>グループには、後で分かりやすい名前をつけてください。</li>
-                    <li>一度作成したグループは、クリックすることで削除できます。</li>
-                </ul>
-                <p>すべての食品をグループ化する必要はありません。意味的にまとまりのあるグループのみを作成してください。</p>
-                <p>グループ作成が終わったら、画面下部の「クラスターレビューへ進む」ボタンを押してください。</p>
-            </details>
-
-            <details>
-                <summary><strong>フィードバックフェーズ：作成したグループの説明</strong></summary>
-                <p>この画面では、あなたが作成した各グループについて、なぜそのようにグループ化したのか、どのような意味があると思うかなどを記述していただきます。</p>
-                <ul>
-                    <li>各グループの名前をクリックすると、対応するフィードバックフォームが表示されます。</li>
-                    <li>各項目について、あなたの考えを具体的に記述してください。</li>
-                </ul>
-                <p>すべてのグループについてフィードバックを入力したら、画面下部の「アンケートに回答し、データを送信する」ボタンを押して実験を完了してください。</p>
-            </details>
-
-            <p class="info-text">操作に関する疑問点があれば、遠慮なく研究者にお尋ねください。それでは、準備ができたら下の「実験開始」ボタンを押してください。</p>
-        </div>
-        <div class="instructions-example">
-            <h3>作業画面の例</h3>
-            <div class="example-image">
-                <img src="images/placement_example.gif" alt="食品配置の例">
-                <p class="caption">食品配置の例（ドラッグ＆ドロップ）</p>
             </div>
-            <div class="example-image">
-                <img src="images/clustering_example.gif" alt="クラスター作成の例">
-                <p class="caption">クラスター作成の例（円で囲む）</p>
-            </div>
-            <p class="caption">※ これらは操作のイメージです。</p>
-        </div>
-    </section>
-
-    <div class="button-controls">
-        <button id="startExperimentBtn">実験開始</button>
-    </div>
-    <div class="back-button-container">
-        <button id="backToScreen1Btn" class="back-button">前の画面に戻る</button>
-    </div>
-    <style>
-        .instructions-layout {
-            display: flex;
-            gap: 25px;
-            width: 100%;
-            margin-top: 20px;
-            text-align: left;
-        }
-        .instructions-text {
-            flex: 2;
-        }
-        .instructions-example {
-            flex: 1;
-            text-align: center;
-        }
-        .instructions-example h3 {
-            margin-top: 0;
-        }
-        .example-image {
-            margin-bottom: 20px;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            overflow: hidden;
-        }
-        .example-image img {
-            display: block;
-            width: 100%;
-            max-width: 300px;
-            height: auto;
-        }
-        .example-image .caption {
-            padding: 10px;
-            font-size: 0.9em;
-            color: #555;
-            text-align: center;
-        }
-        .info-button-inline {
-            display: inline-flex;
-            justify-content: center;
-            align-items: center;
-            width: 18px;
-            height: 18px;
-            background-color: white;
-            border-radius: 50%;
-            border: 1px solid #0056b3;
-            color: #0056b3;
-            font-size: 11px;
-            font-weight: bold;
-            line-height: 1;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
-            cursor: default;
-            margin: 0 5px;
-            vertical-align: middle;
-        }
-        details {
-            margin-bottom: 15px;
-            border: 1px solid #ddd;
-            border-radius: 8px;
-            padding: 15px;
-        }
-        summary {
-            font-weight: bold;
-            cursor: pointer;
-            padding: 10px 0;
-        }
-        details > *:not(summary) {
-            padding-left: 20px;
-            margin-top: 10px;
-        }
-    </style>
-`; 
-        </div>
 
         <div id="screen3" class="screen">
             <h1>自由配置型食品認知マップ</h1>
@@ -163,11 +63,7 @@
                     </div>
                 </div>
                 <div id="details-panel" class="details-area">
-                    <h3 id="details-food-name"></h3>
-                    <img id="details-food-image" src="" alt="選択された食品の画像" style="display:none;">
-                    <div id="details-food-info"></div>
-                    <p id="details-placeholder" class="info-text" style="display:block;">食品の[i]ボタンをクリックすると、ここに詳細情報が表示されます。</p>
-                </div>
+                    </div>
             </div>
             <div class="button-controls">
                 <button id="backToScreen2Btn" class="back-button">前の画面に戻る</button> 
