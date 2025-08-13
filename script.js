@@ -191,36 +191,84 @@ function initializeApp() {
             currentMode = 'clusterFeedback';
             removeActiveDeleteButton();
             updateStatusMessage('作成した各クラスターについて、以下の項目を記入してください。');
-            if (detailsPanel) {
-                detailsPanel.innerHTML = '';
-                detailsPanel.scrollTop = 0;
-                const placeholder = document.createElement('p');
-                placeholder.id = 'details-placeholder';
-                placeholder.className = 'info-text';
-                detailsPanel.appendChild(placeholder);
-                if (experimentData.clusters.length === 0) {
-                    placeholder.textContent = '作成されたクラスターはありません。このまま保存してください。';
-                    placeholder.style.display = 'block';
-                } else {
-                    placeholder.style.display = 'none';
-                    experimentData.clusters.forEach((cluster, index) => {
-                        const itemDiv = document.createElement('div');
-                        itemDiv.className = 'cluster-feedback-item';
-                        const labels = cluster.items.map(name => (foodList.find(f => f.name === name) || {}).label || name).join('、 ');
-                        const itemsText = labels.length > 0 ? ` (内容: ${labels})` : ' (内容なし)';
-                        itemDiv.innerHTML = `<h4>クラスター: ${cluster.name}${itemsText}</h4>
-                            <label for="reasonCreated_${index}">このクラスターを作成した理由:</label><textarea id="reasonCreated_${index}" data-cluster-index="${index}" data-feedback-type="reasonCreated" rows="3" placeholder="例：これらは「洋食」という点で似ていると感じたため。"></textarea>
-                            <label for="meaning_${index}">どのような意味があると思いますか？:</label><textarea id="meaning_${index}" data-cluster-index="${index}" data-feedback-type="meaning" rows="3" placeholder="例：このグループは「子どもが好きな夕食メニュー」と言えるかもしれません。"></textarea>
-                            <label for="reasonName_${index}">その名前にした理由:</label><textarea id="reasonName_${index}" data-cluster-index="${index}" data-feedback-type="reasonName" rows="3" placeholder="例：グループの特徴をそのまま名前にしました。"></textarea>`;
-                        detailsPanel.appendChild(itemDiv);
+            
+            if (!detailsPanel) {
+                console.error("[CRITICAL_ERROR] detailsPanel not found!");
+                return;
+            }
+    
+            detailsPanel.innerHTML = ''; // パネルをクリア
+            
+            if (experimentData.clusters.length === 0) {
+                detailsPanel.innerHTML = '<p class="info-text">作成されたクラスターはありません。このまま次へ進んでください。</p>';
+            } else {
+                const clusterListContainer = document.createElement('div');
+                clusterListContainer.className = 'cluster-list';
+                detailsPanel.appendChild(clusterListContainer);
+    
+                const formContainer = document.createElement('div');
+                formContainer.className = 'cluster-feedback-form';
+                detailsPanel.appendChild(formContainer);
+    
+                const showClusterFeedback = (clusterIndex) => {
+                    // 他のボタンのアクティブ状態を解除
+                    clusterListContainer.querySelectorAll('.cluster-list-item').forEach(item => {
+                        item.classList.remove('active');
                     });
+                    // クリックされたボタンをアクティブにする
+                    const selectedButton = clusterListContainer.querySelector(`[data-cluster-index="${clusterIndex}"]`);
+                    if(selectedButton) selectedButton.classList.add('active');
+    
+                    // フォームを生成
+                    const cluster = experimentData.clusters[clusterIndex];
+                    const labels = cluster.items.map(name => (foodList.find(f=>f.name===name)||{}).label||name ).join('、 ');
+                    const itemsText = labels.length > 0 ? ` (内容: ${labels})` : '';
+    
+                    formContainer.innerHTML = `
+                        <h4>${cluster.name}${itemsText}</h4>
+                        <label for="reasonCreated">このクラスターを作成した理由:</label>
+                        <textarea id="reasonCreated" rows="3" placeholder="例：これらは「洋食」という点で似ていると感じたため。">${cluster.feedback?.reasonCreated || ''}</textarea>
+                        <label for="meaning">どのような意味があると思いますか？:</label>
+                        <textarea id="meaning" rows="3" placeholder="例：このグループは「子どもが好きな夕食メニュー」と言えるかもしれません。">${cluster.feedback?.meaning || ''}</textarea>
+                        <label for="reasonName">その名前にした理由:</label>
+                        <textarea id="reasonName" rows="3" placeholder="例：グループの特徴をそのまま名前にしました。">${cluster.feedback?.reasonName || ''}</textarea>
+                    `;
+    
+                    // 入力があるたびに、リアルタイムでデータを保存
+                    formContainer.querySelector('#reasonCreated').addEventListener('input', (e) => {
+                        if (!cluster.feedback) cluster.feedback = {};
+                        cluster.feedback.reasonCreated = e.target.value;
+                    });
+                    formContainer.querySelector('#meaning').addEventListener('input', (e) => {
+                        if (!cluster.feedback) cluster.feedback = {};
+                        cluster.feedback.meaning = e.target.value;
+                    });
+                    formContainer.querySelector('#reasonName').addEventListener('input', (e) => {
+                        if (!cluster.feedback) cluster.feedback = {};
+                        cluster.feedback.reasonName = e.target.value;
+                    });
+                };
+    
+                experimentData.clusters.forEach((cluster, index) => {
+                    const clusterItem = document.createElement('div');
+                    clusterItem.className = 'cluster-list-item';
+                    clusterItem.textContent = cluster.name;
+                    clusterItem.dataset.clusterIndex = index;
+                    clusterItem.addEventListener('click', () => showClusterFeedback(index));
+                    clusterListContainer.appendChild(clusterItem);
+                });
+                
+                // 最初に一番目のクラスターのフォームを表示
+                if (experimentData.clusters.length > 0) {
+                    showClusterFeedback(0);
                 }
             }
+    
             if(goToFeedbackBtn) goToFeedbackBtn.style.display = 'none';
             if(saveFeedbackAndDataBtn) saveFeedbackAndDataBtn.style.display = 'inline-block';
             if(clusterCanvas) clusterCanvas.classList.remove('active-drawing');
             document.querySelectorAll('.food-container .info-button').forEach(btn => btn.style.pointerEvents = 'none');
-            experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'enterClusterFeedback', target: 'application', details: { clusterCount: experimentData.clusters.length } });
+            experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'enterClusterFeedback', target:'application', details: { clusterCount: experimentData.clusters.length } });
         });
     }
 
