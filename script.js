@@ -545,7 +545,7 @@ function onMouseDown(e, element, handle) {
         return;
     }
     let isDragging = true;
-    element.classList.add('dragging');
+    element.classList.add('dragging'); // ★ドラッグ開始時にクラスを追加
     handle.style.cursor = 'grabbing';
 
     let iMouseX = e.clientX;
@@ -566,7 +566,7 @@ function onMouseDown(e, element, handle) {
     const onMouseUp = () => {
         if (!isDragging) return;
         isDragging = false;
-        element.classList.remove('dragging');
+        element.classList.remove('dragging'); // ★ドラッグ終了時にクラスを削除
         handle.style.cursor = (currentMode === 'placement') ? 'grab' : 'default';
         document.removeEventListener('mousemove', onMouseMove);
         document.removeEventListener('mouseup', onMouseUp);
