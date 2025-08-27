@@ -207,7 +207,12 @@ function initializeApp() {
             }
     
             detailsPanel.innerHTML = ''; // パネルをクリア
-            
+const infoHeader = document.createElement('p');
+infoHeader.className = 'info-text';
+infoHeader.textContent = '作成した各クラスターについて、以下の項目を記入してください。';
+detailsPanel.appendChild(infoHeader);
+
+
             if (experimentData.clusters.length === 0) {
                 detailsPanel.innerHTML = '<p class="info-text">作成されたクラスターはありません。このまま次へ進んでください。</p>';
             } else {
