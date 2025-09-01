@@ -478,13 +478,19 @@ function initializeExperiment() {
             const itemW = foodContainer.offsetWidth, itemH = foodContainer.offsetHeight;
             const maxW = canvasContainer.clientWidth, maxH = canvasContainer.clientHeight;
             const buffer = 5;
-            let initialX = Math.max(buffer, Math.floor(Math.random() * (maxW - itemW - 2 * buffer)) + buffer);
-            let initialY = Math.max(buffer, Math.floor(Math.random() * (maxH - itemH - 2 * buffer)) + buffer);
-            if (itemW === 0 || itemH === 0 || maxW <= itemW + 2 * buffer || maxH <= itemH + 2 * buffer) {
-                initialX = buffer; initialY = buffer;
-            }
+        const randomCenterX = Math.random() * (maxW - itemW - 2 * buffer) + buffer + itemW / 2;
+        const randomCenterY = Math.random() * (maxH - itemH - 2 * buffer) + buffer + itemH / 2;
+        
+        foodContainer.style.left = `${randomCenterX - itemW / 2}px`;
+        foodContainer.style.top = `${randomCenterY - itemH / 2}px`;
 
-            foodContainer.style.left = `${initialX}px`; foodContainer.style.top = `${initialY}px`;
+        experimentData.positions.push({ name: food.name, x: randomCenterX, y: randomCenterY });
+        experimentData.moveHistory.push({
+            timestamp: getCurrentTimestamp(),
+            eventType: 'initialPlacement',
+            target: food.name,
+            position: { x: randomCenterX, y: randomCenterY }
+        });
             experimentData.positions.push({ name: food.name, x: initialX, y: initialY });
             experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'initialPlace', target: food.name, position: { x: initialX, y: initialY } });
             foodContainers[food.name] = foodContainer;
