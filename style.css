@@ -90,3 +90,9 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
     height: 550px; /* レイアウトの高さを固定 */
     flex-grow: 0;
 }
+
+#details-food-image {
+    width: 100%;
+    max-height: 250px; /* 画像の最大の高さを指定 */
+    object-fit: contain; /* 画像の比率を保つ */
+}

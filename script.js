@@ -440,23 +440,7 @@ function initializeExperiment() {
         clusterCanvas.width = canvasContainer.clientWidth;
         clusterCanvas.height = canvasContainer.clientHeight;
         ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height);
- // ▼▼▼ ここから追加 ▼▼▼
-        // 中心線の描画
-        ctx.strokeStyle = '#dddddd'; // 線の色を薄いグレーに設定
-        ctx.lineWidth = 1; // 線の太さ
 
-        // 縦線
-        ctx.beginPath();
-        ctx.moveTo(clusterCanvas.width / 2, 0);
-        ctx.lineTo(clusterCanvas.width / 2, clusterCanvas.height);
-        ctx.stroke();
-
-        // 横線
-        ctx.beginPath();
-        ctx.moveTo(0, clusterCanvas.height / 2);
-        ctx.lineTo(clusterCanvas.width, clusterCanvas.height / 2);
-        ctx.stroke();
-        // ▲▲▲ ここまで追加 ▲▲▲
 
         experimentData.startTime = Date.now();
         experimentData.moveHistory = [];
