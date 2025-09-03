@@ -92,7 +92,11 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
 }
 
 #details-food-image {
-    width: 100%;
-    max-height: 250px; /* 画像の最大の高さを指定 */
-    object-fit: contain; /* 画像の比率を保つ */
+    width: 100%; /* 親要素の幅いっぱいに広がる */
+    max-height: 250px; /* ここで最大の高さを指定 */
+    object-fit: contain; /* 画像の縦横比を保ちつつ、指定したエリアに収める */
+    margin-bottom: 15px; /* 下部との余白 */
+    display: block; /* デフォルトでブロック要素として表示 */
+    margin-left: auto; /* 中央寄せ用 */
+    margin-right: auto; /* 中央寄せ用 */
 }
