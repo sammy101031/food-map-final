@@ -31,7 +31,7 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
 .experiment-layout-container { display: flex; width: 100%; flex-grow: 1; gap: 20px; min-height: 0; }
 .canvas-area { flex: 2; display: flex; flex-direction: column; min-width: 0; }
 #canvas-container { position: relative; width: 100%; height: 100%; min-height: 400px; border: 2px solid #e0e0e0; border-radius: 8px; background-color: #f9f9f9; overflow: hidden; box-shadow: inset 0 0 8px rgba(0,0,0,0.05); }
-.details-area { flex: 1; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; overflow-y: auto; }
+.details-area { flex: 1; border: 1px solid #e0e0e0; border-radius: 8px; padding: 15px; overflow-y: auto; display: flex; flex-direction: column; }
 .button-controls { flex-shrink: 0; padding-top: 10px; padding-bottom: 10px; width: 100%; text-align: center; display: flex; justify-content: center; flex-wrap: wrap; }
 /* 食品コンテナ */
 .food-container { width: 80px; height: 110px; position: absolute; user-select: none; z-index: 10; transition: transform 0.2s ease-out, outline 0.2s ease-out, box-shadow 0.2s ease-out; background-color: #fff; border-radius: 8px; box-shadow: 2px 2px 8px rgba(0,0,0,0.1); display: flex; flex-direction: column; overflow: hidden; }
@@ -99,4 +99,11 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
     display: block; /* デフォルトでブロック要素として表示 */
     margin-left: auto; /* 中央寄せ用 */
     margin-right: auto; /* 中央寄せ用 */
+    flex-shrink: 0;
+}
+
+#details-food-info {
+    overflow-y: auto; /* ★追加 */
+    flex-grow: 1; /* ★追加 */
+    text-align: left; /* ★追加 */
 }
