@@ -658,12 +658,40 @@ function handleClusterMouseUp(e) {
 function identifyItemsInCluster(cluster) {
     if (!cluster || cluster.type !== 'circle' || cluster.radius <= 0) return;
     cluster.items = [];
+    const cRect = canvasContainer.getBoundingClientRect();
+
     Object.values(foodContainers).forEach(container => {
         const rect = container.getBoundingClientRect();
-        const cRect = canvasContainer.getBoundingClientRect();
-        const iCX = (rect.left - cRect.left) + rect.width / 2, iCY = (rect.top - cRect.top) + rect.height / 2;
-        const dX = iCX - cluster.centerX, dY = iCY - cluster.centerY;
-        if (Math.sqrt(dX * dX + dY * dY) <= cluster.radius) cluster.items.push(container.dataset.name);
+        const itemLeft = rect.left - cRect.left;
+        const itemRight = itemLeft + rect.width;
+        const itemTop = rect.top - cRect.top;
+        const itemBottom = itemTop + rect.height;
+
+        // 円の中心から最も近い矩形上の点を見つける
+        const closestX = Math.max(itemLeft, Math.min(cluster.centerX, itemRight));
+        const closestY = Math.max(itemTop, Math.min(cluster.centerY, itemBottom));
+
+        // その点と円の中心との距離を計算
+        const dx = cluster.centerX - closestX;
+        const dy = cluster.centerY - closestY;
+        const distanceToEdge = Math.sqrt((dx * dx) + (dy * dy));
+
+        // 矩形が円に少しでも触れているかを判定
+        if (distanceToEdge <= cluster.radius) {
+            // 関連度（relevance）の計算は、アイコンの中心点で行う
+            const itemCenterX = itemLeft + rect.width / 2;
+            const itemCenterY = itemTop + rect.height / 2;
+            const distanceToCenter = Math.sqrt(Math.pow(itemCenterX - cluster.centerX, 2) + Math.pow(itemCenterY - cluster.centerY, 2));
+            
+            // 中心点が円の外にある場合でも、関連度がマイナスにならないように0に固定
+            const normalizedDistance = Math.min(distanceToCenter, cluster.radius);
+            const relevance = Math.round((1 - (normalizedDistance / cluster.radius)) * 100);
+
+            cluster.items.push({ 
+                name: container.dataset.name, 
+                relevance: relevance 
+            });
+        }
     });
 }
 
