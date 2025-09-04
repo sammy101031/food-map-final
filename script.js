@@ -235,7 +235,10 @@ detailsPanel.appendChild(infoHeader);
     
                     // フォームを生成
                     const cluster = experimentData.clusters[clusterIndex];
-                    const labels = cluster.items.map(name => (foodList.find(f=>f.name===name)||{}).label||name ).join('、 ');
+                    const labels = cluster.items.map(item => {
+    const food = foodList.find(f => f.name === item.name);
+    return food ? food.label : item.name;
+}).join('、 ');
                     const itemsText = labels.length > 0 ? ` (内容: ${labels})` : '';
     
                     formContainer.innerHTML = `
