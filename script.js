@@ -177,43 +177,21 @@ function initializeApp() {
 
     if (finishPlacementBtn) {
         finishPlacementBtn.addEventListener('click', () => {
-    // まずステッパーを「グループ作成」に進める
-    updateStepper(2);
-    
-    // 説明画面を表示する
-    showInstructionScreen(
-        "フェーズ2：グループの作成",
-        "<p>次に、配置した食品を意味のまとまりごとに、マウスで円を描いて囲み、グループを作成してください。<br>１つのグループには、必ず３つ以上の食品を入れてください。</p>",
-        "グループ作成を開始する",
-        () => {
-            // 「グループ作成を開始する」ボタンが押された後の処理
-            showScreen(screen3); // 再び作業画面へ
+            if (!clusterCanvas || !goToFeedbackBtn) return;
             currentMode = 'clustering';
-
-            // ドラッグ機能を無効化
+            removeActiveDeleteButton();
+            experimentData.placementTime = getCurrentTimestamp();
+            experimentData.moveHistory.push({ timestamp: experimentData.placementTime, eventType: 'placementEnd', target: 'finishPlacementBtn', details: { message: 'クラスター作成フェーズへ移行' } });
             Object.values(foodContainers).forEach(container => {
                 const handle = container.querySelector('.drag-handle');
-                if (handle) {
-                    handle.style.cursor = 'default';
-                    handle.onmousedown = null;
-                }
+                if (handle) { handle.style.cursor = 'default'; handle.onmousedown = null; }
             });
-
-            // 右側の詳細パネルをクリア
             displayFoodDetails(null);
-
-            // キャンバスを円の描画モードにする
-            if(clusterCanvas) clusterCanvas.classList.add('active-drawing');
-            
-            // ボタンの表示を切り替え
-            if(finishPlacementBtn) finishPlacementBtn.style.display = 'none';
-            if(goToFeedbackBtn) goToFeedbackBtn.style.display = 'inline-block';
-            
-            // ステータスメッセージを更新
-            updateStatusMessage('食品を円で囲んでグループを作成してください。');
-        }
-    );
-});
+            clusterCanvas.classList.add('active-drawing');
+            finishPlacementBtn.style.display = 'none';
+            goToFeedbackBtn.style.display = 'inline-block';
+            updateStatusMessage('食品を円で囲んでクラスターを作成 (3つ以上中に入れる)、または既存のクラスターをクリックして削除できます。');
+        });
     }
 
     if (goToFeedbackBtn) {
