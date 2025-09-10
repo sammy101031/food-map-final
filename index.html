@@ -8,6 +8,12 @@
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
+    <div id="video-lightbox" class="lightbox">
+        <div class="lightbox-content">
+            <span class="close-button">&times;</span>
+            <video id="lightbox-video" controls autoplay playsinline></video>
+        </div>
+    </div>
     <div id="app" class="screen-container">
         <div id="screen1" class="screen">
             <h2>被験者情報を入力してください</h2>
@@ -44,21 +50,21 @@
                         </li>
                     </ul>
                 </div>
-               <div class="instructions-example">
+<div class="instructions-example">
     <p><strong>【操作の例】</strong></p>
     
     <p>食品の配置（ドラッグ＆ドロップ）</p>
-    <video autoplay loop muted playsinline width="100%" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px;">
+    <video class="clickable-video" autoplay loop muted playsinline width="100%" style="border: 1px solid #ccc; border-radius: 8px; margin-bottom: 15px;" data-video-src="placement-demo.mp4">
         <source src="placement-demo.mp4" type="video/mp4">
         お使いのブラウザは動画の表示に対応していません。
     </video>
     
     <p>グループの作成（円で囲む）</p>
-    <video autoplay loop muted playsinline width="100%" style="border: 1px solid #ccc; border-radius: 8px;">
+    <video class="clickable-video" autoplay loop muted playsinline width="100%" style="border: 1px solid #ccc; border-radius: 8px;" data-video-src="clustering-demo.mp4">
         <source src="clustering-demo.mp4" type="video/mp4">
         お使いのブラウザは動画の表示に対応していません。
     </video>
-</div>
+</div></div>
             </div>
             <p>操作に関する不明点があれば、研究者に確認してください。それでは、準備ができたら「実験開始」ボタンを押してください。</p>
             <button id="startExperimentBtn">実験開始</button>

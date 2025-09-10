@@ -5,6 +5,7 @@ let appContainer, screen1, screen2, screen3, screen4, screen5,
     finishPlacementBtn, goToFeedbackBtn, saveFeedbackAndDataBtn, submitAndFinishBtn,
     loadingSpinner, statusMessage, detailsPanel,
     backToScreen1Btn, backToScreen2Btn, backToStartBtn2;
+    videoLightbox, lightboxVideo, closeButton;
 
 // グローバル変数
 let subjectInfo = {};
@@ -123,6 +124,9 @@ function initializeApp() {
     screen3 = document.getElementById('screen3');
     screen4 = document.getElementById('screen4');
     screen5 = document.getElementById('screen5');
+    videoLightbox = document.getElementById('video-lightbox');
+    lightboxVideo = document.getElementById('lightbox-video');
+    closeButton = videoLightbox.querySelector('.close-button');
     subjectNameInput = document.getElementById('subjectName');
     subjectAgeInput = document.getElementById('subjectAge');
     subjectEmailInput = document.getElementById('subjectEmail');
@@ -776,5 +780,35 @@ function showLoading(show, message = '') {
 function updateStatusMessage(message) {
     if (!statusMessage) return; statusMessage.textContent = message; console.log(`[STATUS] ${message}`);
 }
+
+// 動画クリックでLightboxを開く
+    document.querySelectorAll('.clickable-video').forEach(videoElement => {
+        videoElement.addEventListener('click', () => {
+            const videoSrc = videoElement.dataset.videoSrc;
+            if (videoSrc) {
+                lightboxVideo.src = videoSrc;
+                videoLightbox.classList.add('active');
+                lightboxVideo.play(); // ポップアップで再生開始
+            }
+        });
+    });
+
+    // 閉じるボタンでLightboxを閉じる
+    if (closeButton) {
+        closeButton.addEventListener('click', () => {
+            lightboxVideo.pause(); // 動画を一時停止
+            videoLightbox.classList.remove('active');
+        });
+    }
+
+    // Lightboxの背景クリックで閉じる (動画要素以外)
+    if (videoLightbox) {
+        videoLightbox.addEventListener('click', (e) => {
+            if (e.target === videoLightbox) {
+                lightboxVideo.pause();
+                videoLightbox.classList.remove('active');
+            }
+        });
+    }
 
 document.addEventListener('DOMContentLoaded', initializeApp);
