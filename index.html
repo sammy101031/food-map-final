@@ -68,28 +68,30 @@
         </div>
 
 <div id="screen3" class="screen">
-    <h1>自由配置型食品認知マップ</h1>
-    <p class="info-text" id="statusMessage"></p> <div class="experiment-layout-container">
-        <div class="canvas-area">
-            <div id="canvas-container">
-                <canvas id="clusterCanvas"></canvas>
+            <h1>自由配置型食品認知マップ</h1>
+            <p class="info-text" id="statusMessage"></p> 
+
+            <div class="experiment-layout-container">
+                <div class="canvas-area">
+                    <div id="canvas-container">
+                        <canvas id="clusterCanvas"></canvas>
+                    </div>
+                </div>
+                <div id="details-panel" class="details-area">
+                    <h3 id="details-food-name"></h3>
+                    <img id="details-food-image" src="" alt="選択された食品の画像" style="display:none;">
+                    <div id="details-food-info"></div>
+                    <p id="details-placeholder" class="info-text" style="display:block;">食品の[i]ボタンをクリックすると、ここに詳細情報が表示されます。</p>
+                </div>
             </div>
-        </div>
-        <div id="details-panel" class="details-area">
-            <h3 id="details-food-name"></h3>
-            <img id="details-food-image" src="" alt="選択された食品の画像" style="display:none;">
-            <div id="details-food-info"></div>
-            <p id="details-placeholder" class="info-text" style="display:block;">食品の[i]ボタンをクリックすると、ここに詳細情報が表示されます。</p>
-        </div>
-    </div>
-    <div class="button-controls">
-        <button id="backToScreen2Btn" class="back-button">前の画面に戻る</button> 
-        <button id="finishPlacementBtn">配置を確定する</button>
-        <button id="goToFeedbackBtn" style="display:none;">クラスターレビューへ進む</button>
-        <button id="saveFeedbackAndDataBtn" style="display:none;">全てのフィードバックを記入し次へ進む</button>
-    </div>
-    <div class="spinner" id="loadingSpinner"></div>
-    </div>
+            <div class="button-controls">
+                <button id="backToScreen2Btn" class="back-button">前の画面に戻る</button> 
+                <button id="finishPlacementBtn">配置を確定する</button>
+                <button id="goToFeedbackBtn" style="display:none;">クラスターレビューへ進む</button>
+                <button id="saveFeedbackAndDataBtn" style="display:none;">全てのフィードバックを記入し次へ進む</button>
+            </div>
+            <div class="spinner" id="loadingSpinner"></div>
+            </div>
 
         <div id="screen4" class="screen">
             <h2>アンケートにご協力ください</h2>
