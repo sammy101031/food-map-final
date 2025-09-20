@@ -647,14 +647,25 @@ function handleClusterMouseUp(e) {
         experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterDrawCancel', target: 'clusterCanvas', details: { message: 'Less than 3 items', itemCount: currentDrawingCluster.items.length } });
         currentDrawingCluster = null; ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height); drawAllClusters(); return;
     }
-    const clusterName = prompt("このクラスターの名前を入力してください:", `クラスター${experimentData.clusters.length + 1}`);
-    if (clusterName && clusterName.trim() !== "") {
-        currentDrawingCluster.name = clusterName.trim();
-        experimentData.clusters.push(currentDrawingCluster);
-        experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterCreated', target: currentDrawingCluster.name, details: { id: currentDrawingCluster.id, type: 'circle', radius: currentDrawingCluster.radius, itemCount: currentDrawingCluster.items.length } });
-    } else {
-        experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterDrawCancel', target: 'clusterCanvas', details: { message: 'No name provided for circle cluster' } });
+    const itemsInCluster = currentDrawingCluster.items.map(item => {
+        const food = foodList.find(f => f.name === item.name);
+        return food ? food.label : item.name;
+    }).join('、 ');
+
+    const confirmationMessage = `以下の食品でクラスターを作成しますか？\n\n【内容】\n${itemsInCluster}`;
+    
+    // 確認ダイアログを表示
+    if (confirm(confirmationMessage)) {
+        const clusterName = prompt("このクラスターの名前を入力してください:", `クラスター${experimentData.clusters.length + 1}`);
+        if (clusterName && clusterName.trim() !== "") {
+            currentDrawingCluster.name = clusterName.trim();
+            experimentData.clusters.push(currentDrawingCluster);
+            experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterCreated', target: currentDrawingCluster.name, details: { id: currentDrawingCluster.id, type: 'circle', radius: currentDrawingCluster.radius, itemCount: currentDrawingCluster.items.length } });
+        } else {
+             experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterDrawCancel', target: 'clusterCanvas', details: { message: 'No name provided for circle cluster' } });
+        }
     }
+    // もし確認ダイアログで「キャンセル」が押されたら、何もしない
     currentDrawingCluster = null; ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height); drawAllClusters();
 }
 
