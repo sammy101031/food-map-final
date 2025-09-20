@@ -398,7 +398,7 @@ detailsPanel.appendChild(infoHeader);
     }
     if (backToScreen2Btn) {
         backToScreen2Btn.addEventListener('click', () => {
-            if (confirm("実験説明画面に戻りますか？現在の配置やクラスターの情報はリセットされます。よろしいですか？")) {
+            if (confirm("このフェーズを最初からやり直しますか？\n注意：現在の配置やクラスターの情報は全てリセットされます。")) {
                 document.body.classList.remove('feedback-mode-active'); // ★ この行を追加
                 resetScreen3UI();
                 showScreen(screen2);
