@@ -342,60 +342,56 @@ detailsPanel.appendChild(infoHeader);
 
     if (submitAndFinishBtn) {
 submitAndFinishBtn.addEventListener('click', async (e) => {
-        e.preventDefault();
-        const form = document.getElementById('surveyForm');
-        if (!form.checkValidity()) {
-            alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
-            form.reportValidity();
-            return;
+    e.preventDefault(); // フォームのデフォルト送信を停止
+    const form = document.getElementById('surveyForm');
+    if (!form.checkValidity()) {
+        alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
+        form.reportValidity();
+        return;
+    }
+    
+    // アンケートデータを収集
+    const surveyData = {};
+    const formData = new FormData(form);
+    for (const [key, value] of formData.entries()) {
+        if (key.endsWith('[]')) {
+            const cleanKey = key.slice(0, -2);
+            if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
+            surveyData[cleanKey].push(value);
+        } else {
+            surveyData[key] = value;
         }
+    }
+    if (!surveyData.unknown_foods) {
+        surveyData.unknown_foods = [];
+    }
+    experimentData.survey = surveyData;
+    
+    showLoading(true, "データを送信中...");
+    
+    try {
+        const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbwopNEUkc9WEQE-koUagQeHFoox3lAtMpqE2nLkFUFOJdZqDWnMSPxp7Efq-L8AnEwcAw/exec'; 
+        const dataToSave = { ...experimentData };
+        dataToSave.experimentEndTimeISO = new Date().toISOString();
         
-        // アンケートデータを収集
-        const surveyData = {};
-        const formData = new FormData(form);
-        for (const [key, value] of formData.entries()) {
-            if (key.endsWith('[]')) {
-                const cleanKey = key.slice(0, -2);
-                if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
-                surveyData[cleanKey].push(value);
-            } else {
-                surveyData[key] = value;
-            }
-        }
-        if (!surveyData.unknown_foods) {
-            surveyData.unknown_foods = [];
-        }
-        experimentData.survey = surveyData;
+        await fetch(gasWebAppUrl, {
+            method: 'POST',
+            mode: 'no-cors',
+            body: JSON.stringify(dataToSave)
+        });
         
-        showLoading(true, "データを送信中...");
-        
-        try {
-            const gasWebAppUrl = 'ここにあなたのウェブアプリURL'; // ★★★要書き換え★★★
-            const dataToSave = { ...experimentData };
-            dataToSave.experimentEndTimeISO = new Date().toISOString();
-            
-            await fetch(gasWebAppUrl, {
-                method: 'POST',
-                mode: 'no-cors',
-                redirect: 'follow',
-                body: JSON.stringify(dataToSave),
-                headers: {
-                    'Content-Type': 'text/plain;charset=utf-8',
-                }
-            });
-            
-            // ★★★修正箇所★★★
-            // 成功したら完了画面を表示し、ステッパーを最終段階に進める
-            showScreen(screen5);
-            updateStepper(5); // ステッパーの最後の項目をアクティブにする
+        // ★★★修正箇所★★★
+        // 成功したら完了画面を表示し、ステッパーを最終段階に進める
+        showScreen(screen5);
+        updateStepper(5); // ステッパーの最後の項目をアクティブにする
 
-        } catch (error) {
-            console.error('[CRITICAL_ERROR] Data submission failed:', error);
-            alert('データの送信に失敗しました。管理者にお知らせください。');
-        } finally {
-            showLoading(false);
-        }
-    });
+    } catch (error) {
+        console.error('[CRITICAL_ERROR] Data submission failed:', error);
+        alert('データの送信に失敗しました。管理者にお知らせください。');
+    } finally {
+        showLoading(false);
+    }
+});
     }
 
     if (backToScreen1Btn) {
