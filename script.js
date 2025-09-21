@@ -337,14 +337,12 @@ detailsPanel.appendChild(infoHeader);
                 }
             }
             showScreen(screen4);
-        });
-    }
-
-    if (submitAndFinishBtn) {
-submitAndFinishBtn.addEventListener('click', async (e) => {
-    e.preventDefault(); // フォームのデフォルト送信を停止
-    const form = document.getElementById('surveyForm');
-    if (!form.checkValidity()) {
+            updateStepper(4);
+            if (submitAndFinishBtn) {
+                submitAndFinishBtn.addEventListener('click', async (e) => {
+                                        e.preventDefault(); // フォームのデフォルト送信を停止
+                                        //  const form = document.getElementById('surveyForm');
+ if (!form.checkValidity()) {
         alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
         form.reportValidity();
         return;
@@ -391,7 +389,11 @@ submitAndFinishBtn.addEventListener('click', async (e) => {
         showLoading(false);
     }
 });
+}
+        });
     }
+
+
 
     if (backToScreen1Btn) {
         backToScreen1Btn.addEventListener('click', () => {
