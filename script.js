@@ -380,7 +380,6 @@ submitAndFinishBtn.addEventListener('click', async (e) => {
             body: JSON.stringify(dataToSave)
         });
         
-        // ★★★修正箇所★★★
         // 成功したら完了画面を表示し、ステッパーを最終段階に進める
         showScreen(screen5);
         updateStepper(5); // ステッパーの最後の項目をアクティブにする
