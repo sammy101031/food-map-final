@@ -289,6 +289,7 @@ detailsPanel.appendChild(infoHeader);
         });
     }
 
+    
 if (saveFeedbackAndDataBtn) {
         saveFeedbackAndDataBtn.addEventListener('click', () => {
             let allProvided = true;
