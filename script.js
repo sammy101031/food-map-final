@@ -289,11 +289,9 @@ detailsPanel.appendChild(infoHeader);
         });
     }
 
-    if (saveFeedbackAndDataBtn) {
+if (saveFeedbackAndDataBtn) {
         saveFeedbackAndDataBtn.addEventListener('click', () => {
             let allProvided = true;
-            
-            // データの中身を直接チェックする
             for (const cluster of experimentData.clusters) {
                 if (!cluster.feedback || 
                     !cluster.feedback.reasonCreated?.trim() || 
@@ -301,7 +299,7 @@ detailsPanel.appendChild(infoHeader);
                     !cluster.feedback.reasonName?.trim()) 
                 {
                     allProvided = false;
-                    break; // 一つでも未入力があればループを抜ける
+                    break;
                 }
             }
     
@@ -310,18 +308,16 @@ detailsPanel.appendChild(infoHeader);
                 return;
             }
             
-            // チェックを通過したら、アンケート画面へ
             const form = document.getElementById('surveyForm');
             if(form) {
-                // (この部分は既存のコードと同じです)
-                form.innerHTML = '';
-                const fullSurveyHTML = `
+                // アンケートのHTMLを生成
+                form.innerHTML = `
                 <fieldset class="survey-section"><legend>A. 実験の全体的な感想について</legend><div class="survey-question"><p class="question-text">1. 今回の実験は楽しかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q1_fun" value="1" required><span>1</span></label><label><input type="radio" name="q1_fun" value="2"><span>2</span></label><label><input type="radio" name="q1_fun" value="3"><span>3</span></label><label><input type="radio" name="q1_fun" value="4"><span>4</span></label><label><input type="radio" name="q1_fun" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">2. 食品を配置する作業は、直感的で分かりやすかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q2_intuitive" value="1" required><span>1</span></label><label><input type="radio" name="q2_intuitive" value="2"><span>2</span></label><label><input type="radio" name="q2_intuitive" value="3"><span>3</span></label><label><input type="radio" name="q2_intuitive" value="4"><span>4</span></label><label><input type="radio" name="q2_intuitive" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">3. 食品をどこに配置するか、判断に迷うことが多かった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q3_confused" value="1" required><span>1</span></label><label><input type="radio" name="q3_confused" value="2"><span>2</span></label><label><input type="radio" name="q3_confused" value="3"><span>3</span></label><label><input type="radio" name="q3_confused" value="4"><span>4</span></label><label><input type="radio" name="q3_confused" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div></fieldset>
                 <fieldset class="survey-section"><legend>B. ご自身の思考プロセスや戦略について</legend><div class="survey-question"><p class="question-text">4. 実験を始める前に、ある程度の配置計画を立てていた</p><div class="likert-scale"><span>計画なし</span><div class="likert-options"><label><input type="radio" name="q4_plan" value="1" required><span>1</span></label><label><input type="radio" name="q4_plan" value="2"><span>2</span></label><label><input type="radio" name="q4_plan" value="3"><span>3</span></label><label><input type="radio" name="q4_plan" value="4"><span>4</span></label><label><input type="radio" name="q4_plan" value="5"><span>5</span></label></div><span>綿密に計画</span></div></div><div class="survey-question"><p class="question-text">5. 個々の食品の関係よりも、全体のバランスを考えながら配置した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q5_balance" value="1" required><span>1</span></label><label><input type="radio" name="q5_balance" value="2"><span>2</span></label><label><input type="radio" name="q5_balance" value="3"><span>3</span></label><label><input type="radio" name="q5_balance" value="4"><span>4</span></label><label><input type="radio" name="q5_balance" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">6. グループ分けをする際、見た目の類似性を重視した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q6_visual" value="1" required><span>1</span></label><label><input type="radio" name="q6_visual" value="2"><span>2</span></label><label><input type="radio" name="q6_visual" value="3"><span>3</span></label><label><input type="radio" name="q6_visual" value="4"><span>4</span></label><label><input type="radio" name="q6_visual" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">7. グループ分けをする際、味や食文化といった抽象的な関連性を重視した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q7_abstract" value="1" required><span>1</span></label><label><input type="radio" name="q7_abstract" value="2"><span>2</span></label><label><input type="radio" name="q7_abstract" value="3"><span>3</span></label><label><input type="radio" name="q7_abstract" value="4"><span>4</span></label><label><input type="radio" name="q7_abstract" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">8. 最終的な食品の配置とグループ分けに、自分自身で納得している</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q8_satisfied" value="1" required><span>1</span></label><label><input type="radio" name="q8_satisfied" value="2"><span>2</span></label><label><input type="radio" name="q8_satisfied" value="3"><span>3</span></label><label><input type="radio" name="q8_satisfied" value="4"><span>4</span></label><label><input type="radio" name="q8_satisfied" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div></fieldset>
                 <fieldset class="survey-section"><legend>C. あなたの食生活について</legend><div class="survey-question"><p class="question-text">9. 普段、どのくらいの頻度で自炊をしますか？</p><div class="likert-scale" id="q9_cooking_freq"><label><input type="radio" name="q9_cooking_freq" value="1" required><span>全くしない</span></label><label><input type="radio" name="q9_cooking_freq" value="2"><span>月に数回</span></label><label><input type="radio" name="q9_cooking_freq" value="3"><span>週に1-2回</span></label><label><input type="radio" name="q9_cooking_freq" value="4"><span>週に3-5回</span></label><label><input type="radio" name="q9_cooking_freq" value="5"><span>ほぼ毎日</span></label></div></div><div class="survey-question"><p class="question-text">10. 食や料理に対する関心は強い方だ</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q10_interest" value="1" required><span>1</span></label><label><input type="radio" name="q10_interest" value="2"><span>2</span></label><label><input type="radio" name="q10_interest" value="3"><span>3</span></label><label><input type="radio" name="q10_interest" value="4"><span>4</span></label><label><input type="radio" name="q10_interest" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">11. 冷凍食品を食べる機会は多い</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q11_frozen" value="1" required><span>1</span></label><label><input type="radio" name="q11_frozen" value="2"><span>2</span></label><label><input type="radio" name="q11_frozen" value="3"><span>3</span></label><label><input type="radio" name="q11_frozen" value="4"><span>4</span></label><label><input type="radio" name="q11_frozen" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">12. 今回の実験で表示された食品のうち、知らなかった、または何かわからなかったものがあれば、全てにチェックを入れてください。</p><div class="checkbox-group" id="q12_unknown_foods"></div></div></fieldset>
                 <button id="submitAndFinishBtn" type="submit">アンケートを回答し、データを送信する</button>
                 `;
-                form.innerHTML = fullSurveyHTML;
+
                 const unknownFoodsContainer = document.getElementById('q12_unknown_foods');
                 if (unknownFoodsContainer) {
                     foodList.forEach(food => {
@@ -335,62 +331,63 @@ detailsPanel.appendChild(infoHeader);
                         unknownFoodsContainer.appendChild(label);
                     });
                 }
+                
+                // ★★★ここが重要★★★
+                // 新しく生成した送信ボタンを取得して、クリックイベントを設定
+                const submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
+                if (submitAndFinishBtn) {
+                    submitAndFinishBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        if (!form.checkValidity()) {
+                            alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
+                            form.reportValidity();
+                            return;
+                        }
+                        
+                        const surveyData = {};
+                        const formData = new FormData(form);
+                        for (const [key, value] of formData.entries()) {
+                            if (key.endsWith('[]')) {
+                                const cleanKey = key.slice(0, -2);
+                                if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
+                                surveyData[cleanKey].push(value);
+                            } else {
+                                surveyData[key] = value;
+                            }
+                        }
+                        if (!surveyData.unknown_foods) {
+                            surveyData.unknown_foods = [];
+                        }
+                        experimentData.survey = surveyData;
+                        
+                        showLoading(true, "データを送信中...");
+                        
+                        try {
+                            const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbz0bmNUp44bmRt6_HEC1kulC1SAcEhP7VljceEIT4uqrXfb5wA-ICiO2YN1WlPTYvsA/exec'; 
+                            const dataToSave = { ...experimentData };
+                            dataToSave.experimentEndTimeISO = new Date().toISOString();
+                            
+                            await fetch(gasWebAppUrl, {
+                                method: 'POST',
+                                mode: 'no-cors',
+                                body: JSON.stringify(dataToSave)
+                            });
+                            
+                            showScreen(screen5);
+                            updateStepper(5);
+
+                        } catch (error) {
+                            console.error('[CRITICAL_ERROR] Data submission failed:', error);
+                            alert('データの送信に失敗しました。管理者にお知らせください。');
+                        } finally {
+                            showLoading(false);
+                        }
+                    });
+                }
             }
             showScreen(screen4);
             updateStepper(4);
-            if (submitAndFinishBtn) {
-                submitAndFinishBtn.addEventListener('click', async (e) => {
-                                        e.preventDefault(); // フォームのデフォルト送信を停止
-                                        //  const form = document.getElementById('surveyForm');
- if (!form.checkValidity()) {
-        alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
-        form.reportValidity();
-        return;
-    }
-    
-    // アンケートデータを収集
-    const surveyData = {};
-    const formData = new FormData(form);
-    for (const [key, value] of formData.entries()) {
-        if (key.endsWith('[]')) {
-            const cleanKey = key.slice(0, -2);
-            if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
-            surveyData[cleanKey].push(value);
-        } else {
-            surveyData[key] = value;
-        }
-    }
-    if (!surveyData.unknown_foods) {
-        surveyData.unknown_foods = [];
-    }
-    experimentData.survey = surveyData;
-    
-    showLoading(true, "データを送信中...");
-    
-    try {
-        const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbz0bmNUp44bmRt6_HEC1kulC1SAcEhP7VljceEIT4uqrXfb5wA-ICiO2YN1WlPTYvsA/exec'; 
-        const dataToSave = { ...experimentData };
-        dataToSave.experimentEndTimeISO = new Date().toISOString();
-        
-        await fetch(gasWebAppUrl, {
-            method: 'POST',
-            mode: 'no-cors',
-            body: JSON.stringify(dataToSave)
         });
-        
-        // 成功したら完了画面を表示し、ステッパーを最終段階に進める
-        showScreen(screen5);
-        updateStepper(5); // ステッパーの最後の項目をアクティブにする
-
-    } catch (error) {
-        console.error('[CRITICAL_ERROR] Data submission failed:', error);
-        alert('データの送信に失敗しました。管理者にお知らせください。');
-    } finally {
-        showLoading(false);
-    }
-});
-}
- });
     }
 
 
