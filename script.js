@@ -442,6 +442,23 @@ if (saveFeedbackAndDataBtn) {
 }
 
 
+function waitImagesLoaded(rootEl) {
+  const imgs = Array.from(rootEl.querySelectorAll('img'));
+  if (imgs.length === 0) return Promise.resolve();
+  let done = 0;
+  return new Promise(res => {
+    const check = () => { if (++done >= imgs.length) res(); };
+    imgs.forEach(img => {
+      if (img.complete) check();
+      else {
+        img.addEventListener('load', check, { once: true });
+        img.addEventListener('error', check, { once: true });
+      }
+    });
+  });
+}
+
+
 // 中央配置＋リング配置
 function arrangeInitialLayout(canvas, containersMap) {
     const W = canvas.clientWidth;
@@ -571,6 +588,24 @@ Object.entries(foodContainers).forEach(([name, el]) => {
             foodContainers[food.name] = foodContainer;
             makeDraggable(foodContainer, dragHandle, food, { infoViewStartTime, lastViewedFood });
         });
+        awaitImagesAndArrange();
+
+async function awaitImagesAndArrange() {
+  await waitImagesLoaded(canvasContainer);                      // ← 画像読み込み待ち
+  arrangeInitialLayout(canvasContainer, foodContainers);        // ← 中央＋円形配置
+
+  // 配置結果を experimentData に記録
+  experimentData.positions = [];
+  Object.entries(foodContainers).forEach(([name, el]) => {
+    experimentData.positions.push({ name, x: el.offsetLeft, y: el.offsetTop });
+    experimentData.moveHistory.push({
+      timestamp: getCurrentTimestamp(),
+      eventType: 'initialPlace',
+      target: name,
+      position: { x: el.offsetLeft, y: el.offsetTop }
+    });
+  });
+}
         updateStatusMessage('食品の青いバーをドラッグして自由に配置してください。');
         if (finishPlacementBtn) finishPlacementBtn.style.display = 'inline-block';
         if (goToFeedbackBtn) goToFeedbackBtn.style.display = 'none';
