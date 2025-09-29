@@ -19,6 +19,15 @@ let currentDrawingCluster = null;
 let activeDeleteButton = null;
 let selectedClusterIndexForDeletion = -1;
 
+// ===== 初期配置のための設定値 =====
+const MEAT_PIE_NAME = "australian_meatpie";
+
+// キャンバスサイズは実際の描画サイズに合わせて後で微調整OK
+const RING_PADDING = 30;     // 枠からの余白
+const MIN_GAP = 12;          // アイコン同士のすき間目安
+
+
+
 // 食品リスト
 let foodList = [
     { name: "gyoza", label: "餃子", imgSrc: "4c913c8dc502ecd4682d9b2ce0ee6e9f-e1529890604890.jpeg", info: "油・水なしで、誰が調理しても簡単にパリッパリの羽根ができる、うす皮パリッと、ジューシーで具がギュッと詰まった焼き餃子です。\n誰もが好きな、間違いない安定感のある王道のおいしさです。\n国産のお肉と野菜を使用しています。\n【内容量】12個入り（276g）" },
@@ -289,7 +298,7 @@ detailsPanel.appendChild(infoHeader);
         });
     }
 
-    
+
 if (saveFeedbackAndDataBtn) {
         saveFeedbackAndDataBtn.addEventListener('click', () => {
             let allProvided = true;
@@ -432,6 +441,67 @@ if (saveFeedbackAndDataBtn) {
     console.log("[DEBUG] initializeApp: Finished.");
 }
 
+
+// 中央配置＋リング配置
+function arrangeInitialLayout(canvas, containersMap) {
+    const W = canvas.clientWidth;
+    const H = canvas.clientHeight;
+    const cx = W / 2;
+    const cy = H / 2;
+
+    // DOMからおおよそのアイテムサイズを推定（最初の要素を使う）
+    const any = Object.values(containersMap)[0];
+    const itemW = any ? any.offsetWidth || 96 : 96;
+    const itemH = any ? any.offsetHeight || 96 : 96;
+    const itemR = Math.max(itemW, itemH) / 2;
+
+    // リング半径（枠や重なりを避けるため、最小辺の約40%くらいを基準に）
+    const ringRadius = Math.max(
+        120, 
+        Math.min(W, H) * 0.40 - itemR - RING_PADDING
+    );
+
+    // ミートパイ＝センター
+    const meat = containersMap[MEAT_PIE_NAME];
+    if (meat) {
+        setCenterPos(meat, cx, cy);
+        // 上バーをやさしい赤にするためのクラスを付与
+        const dh = meat.querySelector('.drag-handle');
+        if (dh) dh.classList.add('is-meatpie');
+    }
+
+    // 残りをリングに等間隔（少しだけランダム揺らぎ）
+    const others = Object.keys(containersMap).filter(n => n !== MEAT_PIE_NAME);
+    const n = others.length;
+    if (n === 0) return;
+
+    // 接触しない角度間隔の目安（超ざっくり）
+    const neededArc = (Math.max(itemW, itemH) + MIN_GAP) / ringRadius; // ラジアン
+    const baseStep = Math.max((2 * Math.PI) / n, neededArc);
+    let angle = -Math.PI / 2; // 上から並べ始め
+
+    for (const name of others) {
+        const jitter = (Math.random() - 0.5) * (baseStep * 0.25);
+        const a = angle + jitter;
+        const x = cx + ringRadius * Math.cos(a);
+        const y = cy + ringRadius * Math.sin(a);
+        setCenterPos(containersMap[name], x, y);
+        angle += baseStep;
+    }
+}
+
+// 中心(cx,cy)で指定 → CSSのleft/topへ反映
+function setCenterPos(el, cx, cy) {
+    const w = el.offsetWidth || 96;
+    const h = el.offsetHeight || 96;
+    el.style.position = 'absolute';
+    el.style.left = `${Math.round(cx - w / 2)}px`;
+    el.style.top  = `${Math.round(cy - h / 2)}px`;
+}
+
+
+
+
 function initializeExperiment() {
     let infoViewStartTime = null;
     let lastViewedFood = null;
@@ -483,19 +553,21 @@ function initializeExperiment() {
             img.onerror = () => { img.alt = `${food.label} (画像読込失敗)`; };
             foodContainer.appendChild(img);
             canvasContainer.appendChild(foodContainer);
-            
-            const itemW = foodContainer.offsetWidth, itemH = foodContainer.offsetHeight;
-            const maxW = canvasContainer.clientWidth, maxH = canvasContainer.clientHeight;
-            const buffer = 5;
-            let initialX = Math.max(buffer, Math.floor(Math.random() * (maxW - itemW - 2 * buffer)) + buffer);
-            let initialY = Math.max(buffer, Math.floor(Math.random() * (maxH - itemH - 2 * buffer)) + buffer);
-            if (itemW === 0 || itemH === 0 || maxW <= itemW + 2 * buffer || maxH <= itemH + 2 * buffer) {
-                initialX = buffer; initialY = buffer;
-            }
+            // すべてDOMに追加し終わったら、中央＋リング配置を実行
+arrangeInitialLayout(canvasContainer, foodContainers);
 
-            foodContainer.style.left = `${initialX}px`; foodContainer.style.top = `${initialY}px`;
-            experimentData.positions.push({ name: food.name, x: initialX, y: initialY });
-            experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'initialPlace', target: food.name, position: { x: initialX, y: initialY } });
+// 配置結果を experimentData.positions に記録（moveHistoryも）
+experimentData.positions = [];
+Object.entries(foodContainers).forEach(([name, el]) => {
+    experimentData.positions.push({ name, x: el.offsetLeft, y: el.offsetTop });
+    experimentData.moveHistory.push({
+        timestamp: getCurrentTimestamp(),
+        eventType: 'initialPlace',
+        target: name,
+        position: { x: el.offsetLeft, y: el.offsetTop }
+    });
+});
+
             foodContainers[food.name] = foodContainer;
             makeDraggable(foodContainer, dragHandle, food, { infoViewStartTime, lastViewedFood });
         });
