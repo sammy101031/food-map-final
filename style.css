@@ -116,4 +116,4 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
 
 
 /* ミートパイの上バー（drag-handle）だけ色変更 */
-.drag-handle.is-meatpie { background:#F6A9AF; border-color:#EE8E97; }
+.drag-handle.is-meatpie { background:#F08B93; border-color:#e33847; }
