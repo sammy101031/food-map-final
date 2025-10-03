@@ -373,7 +373,7 @@ if (saveFeedbackAndDataBtn) {
                         showLoading(true, "データを送信中...");
                         
                         try {
-                            const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbzB474v5g3S9_tR6o_X6jiFdxS64keEFhV97AA7Jw5K5wOqF9eD1IDsQd-J8Sseni6syg/exec'; 
+                            const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbw0zCXCFhKhsRnMAE_t-OZiQvhO5Qy3wjCciP4p2V-4JgFg-eKWfRff-AOlNnqz9Y-FWg/exec'; 
                             const dataToSave = { ...experimentData };
                             dataToSave.experimentEndTimeISO = new Date().toISOString();
                             
