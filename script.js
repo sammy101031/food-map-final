@@ -377,11 +377,15 @@ if (saveFeedbackAndDataBtn) {
                             const dataToSave = { ...experimentData };
                             dataToSave.experimentEndTimeISO = new Date().toISOString();
                             
-                            await fetch(gasWebAppUrl, {
-                                method: 'POST',
-                                mode: 'no-cors',
-                                body: JSON.stringify(dataToSave)
-                            });
+const res = await fetch(gasWebAppUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },
+  body: JSON.stringify(dataToSave)
+});
+
+const text = await res.text();
+console.log("[DEBUG] GAS response:", text);
+
                             
                             showScreen(screen5);
                             updateStepper(5);
