@@ -216,6 +216,7 @@ function initializeApp() {
             }
     
             detailsPanel.innerHTML = ''; // パネルをクリア
+
 const infoHeader = document.createElement('p');
 infoHeader.className = 'info-text';
 infoHeader.textContent = '作成した各クラスターについて、以下の項目を記入してください。';
@@ -341,68 +342,90 @@ if (saveFeedbackAndDataBtn) {
                         unknownFoodsContainer.appendChild(label);
                     });
                 }
-                
-                // ★★★ここが重要★★★
-                // 新しく生成した送信ボタンを取得して、クリックイベントを設定
-                const submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
-                if (submitAndFinishBtn) {
-                    submitAndFinishBtn.addEventListener('click', async (e) => {
-                        e.preventDefault();
-                        if (!form.checkValidity()) {
-                            alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
-                            form.reportValidity();
-                            return;
-                        }
-                        
-                        const surveyData = {};
-                        const formData = new FormData(form);
-                        for (const [key, value] of formData.entries()) {
-                            if (key.endsWith('[]')) {
-                                const cleanKey = key.slice(0, -2);
-                                if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
-                                surveyData[cleanKey].push(value);
-                            } else {
-                                surveyData[key] = value;
-                            }
-                        }
-                        if (!surveyData.unknown_foods) {
-                            surveyData.unknown_foods = [];
-                        }
-                        experimentData.survey = surveyData;
-                        
-                        showLoading(true, "データを送信中...");
-                        
-                        try {
-                            const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbz0bmNUp44bmRt6_HEC1kulC1SAcEhP7VljceEIT4uqrXfb5wA-ICiO2YN1WlPTYvsA/exec'; 
-                            const dataToSave = { ...experimentData };
-                            dataToSave.experimentEndTimeISO = new Date().toISOString();
-                            
-const res = await fetch(gasWebAppUrl, {
-  method: 'POST',
-  headers: { 'Content-Type': 'text/plain' },
-  body: JSON.stringify(dataToSave)
-});
-
-const text = await res.text();
-console.log("[DEBUG] GAS response:", text);
-
-                            
-                            showScreen(screen5);
-                            updateStepper(5);
-
-                        } catch (error) {
-                            console.error('[CRITICAL_ERROR] Data submission failed:', error);
-                            alert('データの送信に失敗しました。管理者にお知らせください。');
-                        } finally {
-                            showLoading(false);
-                        }
-                    });
-                }
             }
-            showScreen(screen4);
-            updateStepper(4);
         });
     }
+
+               
+async function submitDataFireAndForget(gasWebAppUrl, dataToSave) {
+  // レスポンスは読まない（誤検知しない）
+  await fetch(gasWebAppUrl, {
+    method: 'POST',
+    mode: 'no-cors',        // ← ここが肝
+    // headers は付けない（プリフライト回避）
+    body: JSON.stringify(dataToSave)
+  });
+}
+
+
+                
+
+
+// ★★★ここが重要★★★
+// 新しく生成した送信ボタンを取得して、クリックイベントを設定
+const submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
+if (submitAndFinishBtn) {
+  submitAndFinishBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    if (!form.checkValidity()) {
+      alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
+      form.reportValidity();
+      return;
+    }
+
+    const surveyData = {};
+    const formData = new FormData(form);
+    for (const [key, value] of formData.entries()) {
+      if (key.endsWith('[]')) {
+        const cleanKey = key.slice(0, -2);
+        if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
+        surveyData[cleanKey].push(value);
+      } else {
+        surveyData[key] = value;
+      }
+    }
+    if (!surveyData.unknown_foods) {
+      surveyData.unknown_foods = [];
+    }
+    experimentData.survey = surveyData;
+
+    showLoading(true, "データを送信中...");
+
+    try {
+      const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbz0bmNUp44bmRt6_HEC1kulC1SAcEhP7VljceEIT4uqrXfb5wA-ICiO2YN1WlPTYvsA/exec'; 
+      const dataToSave = { ...experimentData };
+      dataToSave.experimentEndTimeISO = new Date().toISOString();
+
+      // ★ “送るだけ”：レスポンスは一切読まない
+      await submitDataFireAndForget(gasWebAppUrl, dataToSave);
+
+      // 送れたとみなして完了画面へ（誤検知を防ぐ）
+      showScreen(screen5);
+      updateStepper(5);
+
+    } catch (error) {
+      console.error('[CRITICAL_ERROR] fetch failed before sending:', error);
+      alert('ネットワークエラーで送信に失敗しました。再試行してください。');
+
+      // 任意：保険でローカル保存（外してもOK）
+      try {
+        const blob = new Blob([JSON.stringify(experimentData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        const fname = generateFileName(experimentData.subjectInfo || {});
+        a.href = url;
+        a.download = fname;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        URL.revokeObjectURL(url);
+      } catch (_) {}
+    } finally {
+      showLoading(false);
+    }
+  });
+}
+
 
 
 
@@ -881,11 +904,12 @@ function drawAllClusters() {
     });
 }
 
+        
 function getRandomClusterColor() {
     const r = Math.floor(Math.random() * 180) + 50; const g = Math.floor(Math.random() * 180) + 50; const b = Math.floor(Math.random() * 180) + 50;
     return `rgb(${r},${g},${b})`;
 }
-
+        
 function generateFileName(info) {
     const now = new Date();
     const dateStr = `${now.getFullYear()}${(now.getMonth() + 1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}`;
