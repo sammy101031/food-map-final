@@ -342,6 +342,66 @@ if (saveFeedbackAndDataBtn) {
                         unknownFoodsContainer.appendChild(label);
                     });
                 }
+<<<<<<< HEAD
+=======
+                
+                // ★★★ここが重要★★★
+                // 新しく生成した送信ボタンを取得して、クリックイベントを設定
+                const submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
+                if (submitAndFinishBtn) {
+                    submitAndFinishBtn.addEventListener('click', async (e) => {
+                        e.preventDefault();
+                        if (!form.checkValidity()) {
+                            alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
+                            form.reportValidity();
+                            return;
+                        }
+                        
+                        const surveyData = {};
+                        const formData = new FormData(form);
+                        for (const [key, value] of formData.entries()) {
+                            if (key.endsWith('[]')) {
+                                const cleanKey = key.slice(0, -2);
+                                if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
+                                surveyData[cleanKey].push(value);
+                            } else {
+                                surveyData[key] = value;
+                            }
+                        }
+                        if (!surveyData.unknown_foods) {
+                            surveyData.unknown_foods = [];
+                        }
+                        experimentData.survey = surveyData;
+                        
+                        showLoading(true, "データを送信中...");
+                        
+                        try {
+                            const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbw0zCXCFhKhsRnMAE_t-OZiQvhO5Qy3wjCciP4p2V-4JgFg-eKWfRff-AOlNnqz9Y-FWg/exec'; 
+                            const dataToSave = { ...experimentData };
+                            dataToSave.experimentEndTimeISO = new Date().toISOString();
+                            
+const res = await fetch(gasWebAppUrl, {
+  method: 'POST',
+  headers: { 'Content-Type': 'text/plain' },
+  body: JSON.stringify(dataToSave)
+});
+
+const text = await res.text();
+console.log("[DEBUG] GAS response:", text);
+
+                            
+                            showScreen(screen5);
+                            updateStepper(5);
+
+                        } catch (error) {
+                            console.error('[CRITICAL_ERROR] Data submission failed:', error);
+                            alert('データの送信に失敗しました。管理者にお知らせください。');
+                        } finally {
+                            showLoading(false);
+                        }
+                    });
+                }
+>>>>>>> parent of fd73d35 (リンク更新)
             }
         });
     }
