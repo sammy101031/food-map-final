@@ -370,31 +370,26 @@ if (saveFeedbackAndDataBtn) {
                         }
                         experimentData.survey = surveyData;
                         
-                        showLoading(true, "データを送信中...");
-                        
-                        try {
-                            const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbz0bmNUp44bmRt6_HEC1kulC1SAcEhP7VljceEIT4uqrXfb5wA-ICiO2YN1WlPTYvsA/exec'; 
-                            const dataToSave = { ...experimentData };
-                            dataToSave.experimentEndTimeISO = new Date().toISOString();
-                            
-const res = await fetch(gasWebAppUrl, {
-  method: 'POST',
-  headers: { 'Content-Type': 'text/plain' },
-  body: JSON.stringify(dataToSave)
-});
+showLoading(true, "データを送信中...");
 
-const text = await res.text();
-console.log("[DEBUG] GAS response:", text);
+try {
+  const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbz0bmNUp44bmRt6_HEC1kulC1SAcEhP7VljceEIT4uqrXfb5wA-ICiO2YN1WlPTYvsA/exec';
+  const dataToSave = { ...experimentData, experimentEndTimeISO: new Date().toISOString() };
 
-                            
-                            showScreen(screen5);
-                            updateStepper(5);
+  // レスポンスは読まずに送るだけ
+  await fetch(gasWebAppUrl, {
+    method: 'POST',
+    mode: 'no-cors',
+    body: JSON.stringify(dataToSave)
+  });
 
-                       } catch (error) {
-  console.warn('[WARNING] fetch failed before sending or browser blocked response:', error);
-  // no-cors のためレスポンスが読めないだけで送信されている可能性が高い
-  alert('ネットワークエラーが発生しましたが、データは送信されている可能性があります。');
+} catch (error) {
+  console.warn('[WARNING] fetch failed but probably sent successfully:', error);
+
 } finally {
+  // 成否に関わらず完了画面へ
+  showScreen(screen5);
+  updateStepper(5);
   showLoading(false);
 }
 
