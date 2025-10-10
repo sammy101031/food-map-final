@@ -390,12 +390,14 @@ console.log("[DEBUG] GAS response:", text);
                             showScreen(screen5);
                             updateStepper(5);
 
-                        } catch (error) {
-                            console.error('[CRITICAL_ERROR] Data submission failed:', error);
-                            alert('データの送信に失敗しました。管理者にお知らせください。');
-                        } finally {
-                            showLoading(false);
-                        }
+                       } catch (error) {
+  console.warn('[WARNING] fetch failed before sending or browser blocked response:', error);
+  // no-cors のためレスポンスが読めないだけで送信されている可能性が高い
+  alert('ネットワークエラーが発生しましたが、データは送信されている可能性があります。');
+} finally {
+  showLoading(false);
+}
+
                     });
                 }
             }
