@@ -332,7 +332,115 @@ if (saveFeedbackAndDataBtn) {
             const form = document.getElementById('surveyForm');
             if(form) {
                 // アンケートのHTMLを生成
-                form.innerHTML = `
+                form.innerHTML = ` <!-- A. 価格予想 -->
+<fieldset class="survey-section">
+    <legend>価格予想（ミートパイ）</legend>
+    <div class="survey-question">
+      <p class="question-text">ミートパイはいくらくらいだと思いますか？（円）</p>
+      <input type="number" min="0" step="1" name="price_estimate_guess" required>
+    </div>
+  </fieldset>
+
+  <!-- B. 実価格提示 → 公正感/購買意欲（A1入力後に表示） -->
+  <fieldset class="survey-section" id="block_price_reveal" style="display:none;">
+    <legend>価格提示と評価</legend>
+    <div class="survey-question">
+      <p class="question-text">実際の価格は <strong id="revealedPrice"></strong> 円です。</p>
+    </div>
+    <div class="survey-question">
+      <p class="question-text">この価格についてどう感じますか？</p>
+      <div class="likert-options">
+        <label><input type="radio" name="price_fairness_after_reveal" value="1" required> 高すぎる</label>
+        <label><input type="radio" name="price_fairness_after_reveal" value="2"> やや高い</label>
+        <label><input type="radio" name="price_fairness_after_reveal" value="3"> ちょうど良い</label>
+        <label><input type="radio" name="price_fairness_after_reveal" value="4"> やや安い</label>
+        <label><input type="radio" name="price_fairness_after_reveal" value="5"> 安すぎる</label>
+      </div>
+    </div>
+    <div class="survey-question">
+      <p class="question-text">この価格なら購入したいと思いますか？</p>
+      <div class="likert-options">
+        <label><input type="radio" name="purchase_intent_after_reveal" value="1" required> 思う</label>
+        <label><input type="radio" name="purchase_intent_after_reveal" value="2"> どちらとも言えない</label>
+        <label><input type="radio" name="purchase_intent_after_reveal" value="3"> 思わない</label>
+      </div>
+    </div>
+    <div class="survey-question">
+      <p class="question-text">その理由（任意）</p>
+      <textarea name="purchase_intent_reason" rows="2" placeholder="自由記述（任意）"></textarea>
+    </div>
+  </fieldset>
+
+  <!-- C. 認知・経験・チャネル・シーン -->
+  <fieldset class="survey-section">
+    <legend>認知・経験・チャネル・シーン</legend>
+
+    <div class="survey-question">
+      <p class="question-text">ミートパイという食品を知っていましたか？</p>
+      <label><input type="radio" name="awareness_meatpie" value="1" required> 知っていた</label>
+      <label><input type="radio" name="awareness_meatpie" value="0"> 知らなかった</label>
+    </div>
+
+    <div id="awareness_followups" style="display:none;">
+      <p class="question-text">どこで知りましたか？（複数選択可）</p>
+      <div class="checkbox-group">
+        <label><input type="checkbox" name="awareness_sources[]" value="tv"> テレビ</label>
+        <label><input type="checkbox" name="awareness_sources[]" value="sns"> SNS</label>
+        <label><input type="checkbox" name="awareness_sources[]" value="friends_family"> 友人・家族</label>
+        <label><input type="checkbox" name="awareness_sources[]" value="abroad_trip"> 海外滞在・旅行</label>
+        <label><input type="checkbox" name="awareness_sources[]" value="bakery_store"> ベーカリー</label>
+        <label><input type="checkbox" name="awareness_sources[]" value="convenience_store"> コンビニ</label>
+        <label><input type="checkbox" name="awareness_sources[]" value="supermarket"> スーパー</label>
+        <label><input type="checkbox" id="aw_src_other_chk" name="awareness_sources[]" value="other"> その他</label>
+      </div>
+      <input type="text" id="aw_src_other_text" name="awareness_sources_other" placeholder="その他（記入）" style="display:none;">
+    </div>
+
+    <div class="survey-question">
+      <p class="question-text">ミートパイを食べたことはありますか？</p>
+      <label><input type="radio" name="tried_meatpie" value="1" required> ある</label>
+      <label><input type="radio" name="tried_meatpie" value="0"> ない</label>
+    </div>
+
+    <div class="survey-question">
+      <p class="question-text">ミートパイはどこで買えるイメージですか？</p>
+      <label><input type="radio" name="where_buy_impression" value="convenience_store" required> コンビニ</label>
+      <label><input type="radio" name="where_buy_impression" value="supermarket"> スーパー</label>
+      <label><input type="radio" name="where_buy_impression" value="bakery"> ベーカリー</label>
+      <label><input type="radio" name="where_buy_impression" value="frozen_delivery"> 冷凍宅配</label>
+      <label><input type="radio" name="where_buy_impression" value="unknown"> 不明</label>
+      <label><input type="radio" id="buy_other_radio" name="where_buy_impression" value="other"> その他</label>
+      <input type="text" id="buy_other_text" name="where_buy_impression_other" placeholder="その他（記入）" style="display:none;margin-left:.75rem;">
+    </div>
+
+    <div class="survey-question">
+      <p class="question-text">どんなシーンで食べるイメージですか？（複数選択可）</p>
+      <div class="checkbox-group" id="q_scenes">
+        <label><input type="checkbox" name="consumption_scenes[]" value="breakfast"> 朝食</label>
+        <label><input type="checkbox" name="consumption_scenes[]" value="lunch"> 昼食</label>
+        <label><input type="checkbox" name="consumption_scenes[]" value="dinner"> 夕食</label>
+        <label><input type="checkbox" name="consumption_scenes[]" value="snack"> おやつ・小腹</label>
+        <label><input type="checkbox" name="consumption_scenes[]" value="party"> パーティ・差し入れ</label>
+        <label><input type="checkbox" name="consumption_scenes[]" value="unknown"> 特になし・不明</label>
+        <label><input type="checkbox" id="scene_other_chk" name="consumption_scenes[]" value="other"> その他</label>
+      </div>
+      <input type="text" id="scene_other_text" name="consumption_scenes_other" placeholder="その他（記入）" style="display:none;">
+    </div>
+
+    <div class="survey-question">
+      <p class="question-text">ミートパイは手に取りやすいと感じますか？</p>
+      <div class="likert-options">
+        <label><input type="radio" name="accessibility_perception" value="1" required> 全く思わない</label>
+        <label><input type="radio" name="accessibility_perception" value="2"> あまり思わない</label>
+        <label><input type="radio" name="accessibility_perception" value="3"> どちらとも言えない</label>
+        <label><input type="radio" name="accessibility_perception" value="4"> そう思う</label>
+        <label><input type="radio" name="accessibility_perception" value="5"> 非常にそう思う</label>
+      </div>
+    </div>
+  </fieldset>
+
+
+
                 <fieldset class="survey-section"><legend>A. 実験の全体的な感想について</legend><div class="survey-question"><p class="question-text">1. 今回の実験は楽しかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q1_fun" value="1" required><span>1</span></label><label><input type="radio" name="q1_fun" value="2"><span>2</span></label><label><input type="radio" name="q1_fun" value="3"><span>3</span></label><label><input type="radio" name="q1_fun" value="4"><span>4</span></label><label><input type="radio" name="q1_fun" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">2. 食品を配置する作業は、直感的で分かりやすかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q2_intuitive" value="1" required><span>1</span></label><label><input type="radio" name="q2_intuitive" value="2"><span>2</span></label><label><input type="radio" name="q2_intuitive" value="3"><span>3</span></label><label><input type="radio" name="q2_intuitive" value="4"><span>4</span></label><label><input type="radio" name="q2_intuitive" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">3. 食品をどこに配置するか、判断に迷うことが多かった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q3_confused" value="1" required><span>1</span></label><label><input type="radio" name="q3_confused" value="2"><span>2</span></label><label><input type="radio" name="q3_confused" value="3"><span>3</span></label><label><input type="radio" name="q3_confused" value="4"><span>4</span></label><label><input type="radio" name="q3_confused" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div></fieldset>
                 <fieldset class="survey-section"><legend>B. ご自身の思考プロセスや戦略について</legend><div class="survey-question"><p class="question-text">4. 実験を始める前に、ある程度の配置計画を立てていた</p><div class="likert-scale"><span>計画なし</span><div class="likert-options"><label><input type="radio" name="q4_plan" value="1" required><span>1</span></label><label><input type="radio" name="q4_plan" value="2"><span>2</span></label><label><input type="radio" name="q4_plan" value="3"><span>3</span></label><label><input type="radio" name="q4_plan" value="4"><span>4</span></label><label><input type="radio" name="q4_plan" value="5"><span>5</span></label></div><span>綿密に計画</span></div></div><div class="survey-question"><p class="question-text">5. 個々の食品の関係よりも、全体のバランスを考えながら配置した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q5_balance" value="1" required><span>1</span></label><label><input type="radio" name="q5_balance" value="2"><span>2</span></label><label><input type="radio" name="q5_balance" value="3"><span>3</span></label><label><input type="radio" name="q5_balance" value="4"><span>4</span></label><label><input type="radio" name="q5_balance" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">6. グループ分けをする際、見た目の類似性を重視した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q6_visual" value="1" required><span>1</span></label><label><input type="radio" name="q6_visual" value="2"><span>2</span></label><label><input type="radio" name="q6_visual" value="3"><span>3</span></label><label><input type="radio" name="q6_visual" value="4"><span>4</span></label><label><input type="radio" name="q6_visual" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">7. グループ分けをする際、味や食文化といった抽象的な関連性を重視した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q7_abstract" value="1" required><span>1</span></label><label><input type="radio" name="q7_abstract" value="2"><span>2</span></label><label><input type="radio" name="q7_abstract" value="3"><span>3</span></label><label><input type="radio" name="q7_abstract" value="4"><span>4</span></label><label><input type="radio" name="q7_abstract" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">8. 最終的な食品の配置とグループ分けに、自分自身で納得している</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q8_satisfied" value="1" required><span>1</span></label><label><input type="radio" name="q8_satisfied" value="2"><span>2</span></label><label><input type="radio" name="q8_satisfied" value="3"><span>3</span></label><label><input type="radio" name="q8_satisfied" value="4"><span>4</span></label><label><input type="radio" name="q8_satisfied" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div></fieldset>
                 <fieldset class="survey-section"><legend>C. あなたの食生活について</legend><div class="survey-question"><p class="question-text">9. 普段、どのくらいの頻度で自炊をしますか？</p><div class="likert-scale" id="q9_cooking_freq"><label><input type="radio" name="q9_cooking_freq" value="1" required><span>全くしない</span></label><label><input type="radio" name="q9_cooking_freq" value="2"><span>月に数回</span></label><label><input type="radio" name="q9_cooking_freq" value="3"><span>週に1-2回</span></label><label><input type="radio" name="q9_cooking_freq" value="4"><span>週に3-5回</span></label><label><input type="radio" name="q9_cooking_freq" value="5"><span>ほぼ毎日</span></label></div></div><div class="survey-question"><p class="question-text">10. 食や料理に対する関心は強い方だ</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q10_interest" value="1" required><span>1</span></label><label><input type="radio" name="q10_interest" value="2"><span>2</span></label><label><input type="radio" name="q10_interest" value="3"><span>3</span></label><label><input type="radio" name="q10_interest" value="4"><span>4</span></label><label><input type="radio" name="q10_interest" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">11. 冷凍食品を食べる機会は多い</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q11_frozen" value="1" required><span>1</span></label><label><input type="radio" name="q11_frozen" value="2"><span>2</span></label><label><input type="radio" name="q11_frozen" value="3"><span>3</span></label><label><input type="radio" name="q11_frozen" value="4"><span>4</span></label><label><input type="radio" name="q11_frozen" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">12. 今回の実験で表示された食品のうち、知らなかった、または何かわからなかったものがあれば、全てにチェックを入れてください。</p><div class="checkbox-group" id="q12_unknown_foods"></div></div></fieldset>
