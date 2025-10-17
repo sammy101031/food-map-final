@@ -332,8 +332,104 @@ if (saveFeedbackAndDataBtn) {
             const form = document.getElementById('surveyForm');
             if(form) {
                 // アンケートのHTMLを生成
-                form.innerHTML = ` <!-- A. 価格予想 -->
-<fieldset class="survey-section">
+                form.innerHTML = 
+                // 実価格の表示
+document.getElementById('revealedPrice').textContent = MEATPIE_PRICE_JPY.toString();
+
+// A1入力で価格提示ブロックを開く
+const priceInput = form.querySelector('input[name="price_estimate_guess"]');
+const blockReveal = document.getElementById('block_price_reveal');
+if (priceInput && blockReveal) {
+  const toggleReveal = () => {
+    const v = Number(priceInput.value);
+    blockReveal.style.display = (!isNaN(v) && v >= 0) ? 'block' : 'none';
+  };
+  priceInput.addEventListener('input', toggleReveal);
+  toggleReveal();
+}
+
+// 知っていた=0 のときに「どこで知った」表示（※値反転に合わせて変更）
+const awRadios = form.querySelectorAll('input[name="awareness_meatpie"]');
+const awFollow = document.getElementById('awareness_followups');
+const updateAwFollow = () => {
+  const val = [...awRadios].find(r => r.checked)?.value;
+  const show = (val === '0'); // 0=知っていた
+  awFollow.style.display = show ? 'block' : 'none';
+  if (!show) {
+    const otherChk = document.getElementById('aw_src_other_chk');
+    const otherText = document.getElementById('aw_src_other_text');
+    if (otherChk) otherChk.checked = false;
+    if (otherText) { otherText.style.display = 'none'; otherText.value = ''; otherText.required = false; }
+  }
+};
+awRadios.forEach(r => r.addEventListener('change', updateAwFollow));
+updateAwFollow();
+
+// 「どこで知った」その他：チェックでテキスト表示＆必須化
+const awOtherChk = document.getElementById('aw_src_other_chk');
+const awOtherText = document.getElementById('aw_src_other_text');
+if (awOtherChk && awOtherText) {
+  awOtherChk.addEventListener('change', () => {
+    const on = awOtherChk.checked;
+    awOtherText.style.display = on ? 'inline-block' : 'none';
+    awOtherText.required = on;               // ★ その他選択時は必須
+    if (!on) awOtherText.value = '';
+  });
+}
+
+// どこで買える：その他選択時テキスト表示＆必須化
+const buyOtherRadio = document.getElementById('buy_other_radio');
+const buyOtherText = document.getElementById('buy_other_text');
+form.querySelectorAll('input[name="where_buy_impression"]').forEach(r => {
+  r.addEventListener('change', () => {
+    const isOther = (buyOtherRadio && buyOtherRadio.checked);
+    buyOtherText.style.display = isOther ? 'inline-block' : 'none';
+    buyOtherText.required = !!isOther;       // ★ その他選択時は必須
+    if (!isOther) buyOtherText.value = '';
+  });
+});
+
+// シーン：その他チェックでテキスト表示＆必須化
+const sceneOtherChk = document.getElementById('scene_other_chk');
+const sceneOtherText = document.getElementById('scene_other_text');
+if (sceneOtherChk && sceneOtherText) {
+  const syncSceneOther = () => {
+    const on = sceneOtherChk.checked;
+    sceneOtherText.style.display = on ? 'inline-block' : 'none';
+    sceneOtherText.required = on;            // ★ その他選択時は必須
+    if (!on) sceneOtherText.value = '';
+  };
+  sceneOtherChk.addEventListener('change', syncSceneOther);
+  syncSceneOther();
+}
+
+// 送信直前の保険（ネイティブrequiredが効かない環境向け）
+function validateOtherFieldsBeforeSubmit() {
+  // 知っていた=0 で「その他」がチェックされているなら記入必須
+  const awVal = [...awRadios].find(r => r.checked)?.value;
+  if (awVal === '0' && awOtherChk?.checked && !awOtherText?.value.trim()) {
+    alert('「どこで知りましたか？」の「その他」を記入してください。');
+    awOtherText?.focus();
+    return false;
+  }
+  // 買える場所：その他選択なら記入必須
+  if (buyOtherRadio?.checked && !buyOtherText?.value.trim()) {
+    alert('「どこで買えるイメージですか？」の「その他」を記入してください。');
+    buyOtherText?.focus();
+    return false;
+  }
+  // シーン：その他チェックなら記入必須
+  if (sceneOtherChk?.checked && !sceneOtherText?.value.trim()) {
+    alert('「どんなシーンで」の「その他」を記入してください。');
+    sceneOtherText?.focus();
+    return false;
+  }
+  return true;
+}
+
+
+                `<!-- A. 価格予想 -->
+  <fieldset class="survey-section">
     <legend>価格予想（ミートパイ）</legend>
     <div class="survey-question">
       <p class="question-text">ミートパイはいくらくらいだと思いますか？（円）</p>
@@ -472,7 +568,15 @@ if (saveFeedbackAndDataBtn) {
                             form.reportValidity();
                             return;
                         }
-                        
+                        // 送信直前：その他のバリデーション（上で宣言した関数）                        
+                        if (!validateOtherFieldsBeforeSubmit()) return;
+                        // 実価格をsurveyに入れる
+                        experimentData.survey = experimentData.survey || {};
+                        experimentData.survey.price_revealed_value = MEATPIE_PRICE_JPY;
+
+
+
+
                         const surveyData = {};
                         const formData = new FormData(form);
                         for (const [key, value] of formData.entries()) {
