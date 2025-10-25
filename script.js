@@ -1,7 +1,3 @@
-// === Config ===
-const MEATPIE_PRICE_JPY = 300; // 実価格（必要に応じて変更）
-const MEATPIE_ID = 'australian_meatpie';
-
 // DOM要素のキャッシュ
 let appContainer, screen1, screen2, screen3, screen4, screen5,
     subjectNameInput, subjectAgeInput, subjectEmailInput, goToScreen2Btn, startExperimentBtn,
@@ -209,13 +205,6 @@ function initializeApp() {
 
     if (goToFeedbackBtn) {
         goToFeedbackBtn.addEventListener('click', () => {
-            const hasMeatpie = experimentData.clusters.some(
-                c => (c.items || []).some(it => it.name === MEATPIE_ID)
-            );
-            if (!hasMeatpie) {
-                alert('ミートパイを含むクラスターを1つ以上作成してください。');
-                return;
-            }
             document.body.classList.add('feedback-mode-active'); // ★ この行を追加
             currentMode = 'clusterFeedback';
             removeActiveDeleteButton();
