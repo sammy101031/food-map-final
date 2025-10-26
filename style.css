@@ -121,3 +121,8 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
   border-color: #E46F79;    /* それより少し暗めの境界線 */
   color: #fff;              /* 白文字（青いバーと同じ可読性を維持） */
 }
+
+.slider-labels{display:flex;justify-content:space-between;gap:8px;font-size:.9rem;color:#555;margin:6px 0 8px}
+.recog-slider{width:100%;appearance:none;height:6px;background:#ddd;border-radius:5px;outline:none}
+.recog-slider::-webkit-slider-thumb{appearance:none;width:18px;height:18px;background:#0078d7;border-radius:50%;cursor:pointer}
+.recog-row{margin-bottom:18px}
