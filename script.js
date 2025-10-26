@@ -423,6 +423,29 @@ if (slidersHost) {
     input.value = '50';
     input.setAttribute('aria-label', `${food.label}の認知度`);
     row.appendChild(input);
+input.setAttribute('aria-label', `${food.label}の認知度`);
+row.appendChild(input);
+
+// --- 目盛りを追加（5%ごと、10%は長め） ---
+const ticks = document.createElement('div');
+ticks.className = 'slider-ticks';
+row.appendChild(ticks);
+
+for (let pct = 0; pct <= 100; pct += 5) {
+  const line = document.createElement('div');
+  line.className = 'tick' + (pct % 10 === 0 ? ' major' : '');
+  line.style.left = `calc(${pct}% - 0.5px)`;
+  ticks.appendChild(line);
+}
+
+// （任意）0, 50, 100 に小さな数字ラベル
+['0','50','100'].forEach(v => {
+  const lab = document.createElement('div');
+  lab.className = 'label';
+  lab.textContent = v;
+  lab.style.left = `calc(${v}% - 0px)`;
+  ticks.appendChild(lab);
+});
 
     const save = () => { recognitionScores[food.name] = parseInt(input.value, 10); };
     input.addEventListener('input', save);

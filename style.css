@@ -126,3 +126,35 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
 .recog-slider{width:100%;appearance:none;height:6px;background:#ddd;border-radius:5px;outline:none}
 .recog-slider::-webkit-slider-thumb{appearance:none;width:18px;height:18px;background:#0078d7;border-radius:50%;cursor:pointer}
 .recog-row{margin-bottom:18px}
+
+
+/* 目盛りライン */
+.slider-ticks {
+  position: relative;
+  height: 14px;
+  margin-top: 6px;
+}
+
+.slider-ticks .tick {
+  position: absolute;
+  bottom: 0;
+  width: 1px;
+  height: 6px;         /* 短い目盛り（5%刻み） */
+  background: #9aa0a6; /* グレー */
+  opacity: 0.9;
+}
+
+.slider-ticks .tick.major {
+  height: 10px;        /* 長い目盛り（10%刻み） */
+  background: #5f6368; /* 少し濃い */
+  opacity: 1;
+}
+
+/* （任意）0/50/100 に薄い数字を出したい場合 */
+.slider-ticks .label {
+  position: absolute;
+  top: 0;
+  font-size: 10px;
+  color: #777;
+  transform: translateX(-50%);
+}
