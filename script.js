@@ -2,6 +2,35 @@
 const MEATPIE_PRICE_JPY = 300; // 実価格（必要に応じて変更）
 const MEATPIE_ID = 'australian_meatpie';
 
+// === Helpers for geometry (ADD) ===
+function getFoodRectAndCenter(el, container) {
+  const cRect = container.getBoundingClientRect();
+  const r = el.getBoundingClientRect();
+  const left = r.left - cRect.left;
+  const top  = r.top  - cRect.top;
+  const width = r.width;
+  const height = r.height;
+  const centerX = left + width / 2;
+  const centerY = top  + height / 2;
+  return { left, top, width, height, centerX, centerY };
+}
+
+// 円と矩形の重なり率（0..1）を格子サンプリングで近似
+function circleRectOverlapRatio(cx, cy, radius, rect, samplesPerSide = 20) {
+  let inside = 0;
+  const total = samplesPerSide * samplesPerSide;
+  for (let i = 0; i < samplesPerSide; i++) {
+    for (let j = 0; j < samplesPerSide; j++) {
+      const x = rect.left + (i + 0.5) * (rect.width  / samplesPerSide);
+      const y = rect.top  + (j + 0.5) * (rect.height / samplesPerSide);
+      const dx = x - cx, dy = y - cy;
+      if (dx * dx + dy * dy <= radius * radius) inside++;
+    }
+  }
+  return inside / total;
+}
+
+
 // DOM要素のキャッシュ
 let appContainer, screen1, screen2, screen3, screen4, screen5,
     subjectNameInput, subjectAgeInput, subjectEmailInput, goToScreen2Btn, startExperimentBtn,
@@ -482,6 +511,25 @@ for (let pct = 0; pct <= 100; pct += 5) {
                                 surveyData[key] = value;
                             }
                         }
+// === Build distance matrix (ADD) ===
+// positions から最終位置マップを作成
+const posMap = {};
+experimentData.positions.forEach(p => { posMap[p.name] = { x: p.x, y: p.y }; });
+
+// 全食品のユークリッド距離(px)を行列に
+const foods = Object.keys(posMap);
+const distanceMatrix = {};
+foods.forEach(a => {
+  distanceMatrix[a] = {};
+  foods.forEach(b => {
+    const dx = posMap[a].x - posMap[b].x;
+    const dy = posMap[a].y - posMap[b].y;
+    distanceMatrix[a][b] = Math.round(Math.hypot(dx, dy));
+  });
+});
+
+// 送信データへ同梱
+experimentData.distanceMatrix = distanceMatrix;
 
                         experimentData.survey = surveyData;
                         surveyData.recognition_scores = recognitionScores;
@@ -885,18 +933,56 @@ function handleClusterMouseUp(e) {
     const confirmationMessage = `以下の食品でクラスターを作成しますか？\n\n【内容】\n${itemsInCluster}`;
     
     // 確認ダイアログを表示
-    if (confirm(confirmationMessage)) {
-        const clusterName = prompt("このクラスターの名前を入力してください:", `クラスター${experimentData.clusters.length + 1}`);
-        if (clusterName && clusterName.trim() !== "") {
-            currentDrawingCluster.name = clusterName.trim();
-            experimentData.clusters.push(currentDrawingCluster);
-            experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterCreated', target: currentDrawingCluster.name, details: { id: currentDrawingCluster.id, type: 'circle', radius: currentDrawingCluster.radius, itemCount: currentDrawingCluster.items.length } });
-        } else {
-             experimentData.moveHistory.push({ timestamp: getCurrentTimestamp(), eventType: 'clusterDrawCancel', target: 'clusterCanvas', details: { message: 'No name provided for circle cluster' } });
-        }
-    }
-    // もし確認ダイアログで「キャンセル」が押されたら、何もしない
-    currentDrawingCluster = null; ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height); drawAllClusters();
+if (confirm(confirmationMessage)) {
+  const clusterName = prompt("このクラスターの名前を入力してください:", `クラスター${experimentData.clusters.length + 1}`);
+  if (clusterName && clusterName.trim() !== "") {
+    currentDrawingCluster.name = clusterName.trim();
+
+    // === ADD: push の直前で items と circle をリッチ化 ===
+    const circle = currentDrawingCluster;
+
+    const enrichedItems = circle.items.map(item => {
+      const el = foodContainers[item.name];
+      if (!el) return item; // 念のため
+      const rect = getFoodRectAndCenter(el, canvasContainer);
+      const distPx = Math.hypot(rect.centerX - circle.centerX, rect.centerY - circle.centerY);
+      const overlap = circleRectOverlapRatio(circle.centerX, circle.centerY, circle.radius, rect, 20); // 20x20 サンプリング
+
+      return {
+        name: item.name,
+        relevance: item.relevance, // 既存（正規化距離 0..100）
+        center: { x: Math.round(rect.centerX), y: Math.round(rect.centerY) },
+        rect:   { left: Math.round(rect.left), top: Math.round(rect.top), width: Math.round(rect.width), height: Math.round(rect.height) },
+        distToCenterPx: Math.round(distPx),
+        overlapRatio: Number(overlap.toFixed(3)) // 0..1
+      };
+    });
+
+    currentDrawingCluster.items = enrichedItems;
+    currentDrawingCluster.circleArea = Math.round(Math.PI * circle.radius * circle.radius);
+    // === ADD: ここまで ===
+
+    experimentData.clusters.push(currentDrawingCluster);
+    experimentData.moveHistory.push({
+      timestamp: getCurrentTimestamp(),
+      eventType: 'clusterCreated',
+      target: currentDrawingCluster.name,
+      details: { id: currentDrawingCluster.id, type: 'circle', radius: currentDrawingCluster.radius, itemCount: currentDrawingCluster.items.length }
+    });
+  } else {
+    experimentData.moveHistory.push({
+      timestamp: getCurrentTimestamp(),
+      eventType: 'clusterDrawCancel',
+      target: 'clusterCanvas',
+      details: { message: 'No name provided for circle cluster' }
+    });
+  }
+}
+// もし確認ダイアログで「キャンセル」が押されたら、何もしない
+currentDrawingCluster = null;
+ctx.clearRect(0, 0, clusterCanvas.width, clusterCanvas.height);
+drawAllClusters();
+
 }
 
 function identifyItemsInCluster(cluster) {
