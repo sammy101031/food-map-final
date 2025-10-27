@@ -553,7 +553,7 @@ experimentData.distanceMatrix = distanceMatrix;
 showLoading(true, "データを送信中...");
 
 try {
-  const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbz0bmNUp44bmRt6_HEC1kulC1SAcEhP7VljceEIT4uqrXfb5wA-ICiO2YN1WlPTYvsA/exec';
+  const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbzrDKs-6wmeHDpyepiQNwW9ZcAAFtPRiasbNJtP8M0Pvlkxh5e04Km7eQh3mK1MOhHV/exec';
   const dataToSave = { ...experimentData, experimentEndTimeISO: new Date().toISOString() };
 
   // レスポンスは読まずに送るだけ
