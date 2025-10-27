@@ -45,6 +45,7 @@ let experimentData = {
     subjectInfo: {}, positions: [], clusters: [],
     placementTime: null, moveHistory: [], relations: []
 };
+let isSubmitting = false; // 二重送信防止
 let recognitionScores = {}; // ← 追加： { foodId: 0..100 } を入れる箱
 let currentMode = 'intro';
 let foodContainers = {};
@@ -493,10 +494,24 @@ for (let pct = 0; pct <= 100; pct += 5) {
                 const submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
                 if (submitAndFinishBtn) {
                     submitAndFinishBtn.addEventListener('click', async (e) => {
+                        // --- 二重送信ガード（最初に置く） ---
+if (isSubmitting) { return; }
+isSubmitting = true;
+
+// ボタン無効化＋文言変更
+submitAndFinishBtn.disabled = true;
+submitAndFinishBtn.setAttribute('aria-disabled', 'true');
+const originalLabel = submitAndFinishBtn.textContent;
+submitAndFinishBtn.textContent = '送信中…（1回だけクリックしてください）';
+
+// フォーム全体も操作不可に（任意：安心）
+Array.from(form.elements).forEach(el => { if (el !== submitAndFinishBtn) el.disabled = true; });
+
                         e.preventDefault();
                         if (!form.checkValidity()) {
                             alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
                             form.reportValidity();
+                            cancelSubmitLock();
                             return;
                         }
                         
