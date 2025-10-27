@@ -723,6 +723,15 @@ function initializeExperiment() {
         experimentData.clusters = [];
         experimentData.positions = [];
 
+        // 実験メタ情報を保存（screen/canvas サイズなど）
+experimentData.meta = {
+  screen: { w: window.innerWidth, h: window.innerHeight },
+  canvas: clusterCanvas ? { w: clusterCanvas.width, h: clusterCanvas.height } : null,
+  userAgent: navigator.userAgent,
+  scriptVersion: 'v6' // ← あなたの配布バージョンに合わせて
+};
+
+
         if (detailsPanel) {
             detailsPanel.innerHTML = `<h3 id="details-food-name"></h3><img id="details-food-image" src="" alt="選択された食品の画像" style="display:none;"><div id="details-food-info"></div><p id="details-placeholder" class="info-text" style="display:block;">食品の[i]ボタンをクリックすると、ここに詳細情報が表示されます。</p>`;
         }
