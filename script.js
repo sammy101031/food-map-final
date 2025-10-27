@@ -732,7 +732,7 @@ experimentData.meta = {
   screen: { w: window.innerWidth, h: window.innerHeight },
   canvas: clusterCanvas ? { w: clusterCanvas.width, h: clusterCanvas.height } : null,
   userAgent: navigator.userAgent,
-  scriptVersion: 'v6' // ← あなたの配布バージョンに合わせて
+  scriptVersion: 'v7' // ← あなたの配布バージョンに合わせて
 };
 
 
