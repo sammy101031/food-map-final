@@ -544,10 +544,14 @@ foods.forEach(a => {
 });
 
 // 送信データへ同梱
+// 距離行列を追加
 experimentData.distanceMatrix = distanceMatrix;
 
-                        experimentData.survey = surveyData;
-                        surveyData.recognition_scores = recognitionScores;
+// 認知度スコアをsurveyDataに含める
+surveyData.recognition_scores = recognitionScores;
+
+// survey全体をexperimentDataに格納
+experimentData.survey = surveyData;
 
                         
 showLoading(true, "データを送信中...");
