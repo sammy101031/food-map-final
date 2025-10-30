@@ -560,6 +560,41 @@ try {
   const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbzrDKs-6wmeHDpyepiQNwW9ZcAAFtPRiasbNJtP8M0Pvlkxh5e04Km7eQh3mK1MOhHV/exec';
   const dataToSave = { ...experimentData, experimentEndTimeISO: new Date().toISOString() };
 
+  // --- 最終配置を取得 ---
+const finalPositions = [];
+Object.entries(foodContainers).forEach(([name, el]) => {
+  finalPositions.push({
+    name,
+    x: el.offsetLeft,
+    y: el.offsetTop
+  });
+});
+experimentData.finalPositions = finalPositions;
+
+// --- ミートパイ距離（画面サイズに依存しない相対値で算出） ---
+function centerOf(el) {
+  return { x: el.offsetLeft + el.offsetWidth / 2, y: el.offsetTop + el.offsetHeight / 2 };
+}
+
+const canvasW = clusterCanvas.width;
+const canvasH = clusterCanvas.height;
+const diag = Math.hypot(canvasW, canvasH); // 対角線長で正規化
+
+const meatEl = foodContainers['australian_meatpie'];
+if (meatEl) {
+  const meatC = centerOf(meatEl);
+  const meatpieDistances = {};
+  Object.entries(foodContainers).forEach(([name, el]) => {
+    if (name === 'australian_meatpie') return;
+    const c = centerOf(el);
+    const rawDist = Math.hypot(c.x - meatC.x, c.y - meatC.y);
+    meatpieDistances[name] = +(rawDist / diag).toFixed(4); // 0〜1に正規化
+  });
+  experimentData.meatpieDistances = meatpieDistances;
+}
+
+
+
   // レスポンスは読まずに送るだけ
   await fetch(gasWebAppUrl, {
     method: 'POST',
@@ -732,7 +767,7 @@ experimentData.meta = {
   screen: { w: window.innerWidth, h: window.innerHeight },
   canvas: clusterCanvas ? { w: clusterCanvas.width, h: clusterCanvas.height } : null,
   userAgent: navigator.userAgent,
-  scriptVersion: 'v10' // ← あなたの配布バージョンに合わせて
+  scriptVersion: 'v11' // ← あなたの配布バージョンに合わせて
 };
 
 
