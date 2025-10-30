@@ -848,6 +848,10 @@ async function awaitImagesAndArrange() {
     console.log('[DEBUG] initializeExperiment finished.');
 }
 
+// initializeExperiment() の成功直後など、一度だけ
+experimentData.foodsShown = Array.isArray(foodList) ? foodList.map(f => f.name) : [];
+
+
 function makeDraggable(element, handle, food, experimentScope) {
     const actionButton = handle.querySelector('.info-button');
     actionButton.addEventListener('click', (e) => {
