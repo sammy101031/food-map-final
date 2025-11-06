@@ -360,66 +360,286 @@ if (saveFeedbackAndDataBtn) {
                 return;
             }
             
-            const form = document.getElementById('surveyForm');
-            if(form) {
-                // アンケートのHTMLを生成
-                form.innerHTML = `
-                <fieldset class="survey-section"><legend>A. 実験の全体的な感想について</legend><div class="survey-question"><p class="question-text">1. 今回の実験は楽しかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q1_fun" value="1" required><span>1</span></label><label><input type="radio" name="q1_fun" value="2"><span>2</span></label><label><input type="radio" name="q1_fun" value="3"><span>3</span></label><label><input type="radio" name="q1_fun" value="4"><span>4</span></label><label><input type="radio" name="q1_fun" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">2. 食品を配置する作業は、直感的で分かりやすかった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q2_intuitive" value="1" required><span>1</span></label><label><input type="radio" name="q2_intuitive" value="2"><span>2</span></label><label><input type="radio" name="q2_intuitive" value="3"><span>3</span></label><label><input type="radio" name="q2_intuitive" value="4"><span>4</span></label><label><input type="radio" name="q2_intuitive" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">3. 食品をどこに配置するか、判断に迷うことが多かった</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q3_confused" value="1" required><span>1</span></label><label><input type="radio" name="q3_confused" value="2"><span>2</span></label><label><input type="radio" name="q3_confused" value="3"><span>3</span></label><label><input type="radio" name="q3_confused" value="4"><span>4</span></label><label><input type="radio" name="q3_confused" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div></fieldset>
-                <fieldset class="survey-section"><legend>B. ご自身の思考プロセスや戦略について</legend><div class="survey-question"><p class="question-text">4. 実験を始める前に、ある程度の配置計画を立てていた</p><div class="likert-scale"><span>計画なし</span><div class="likert-options"><label><input type="radio" name="q4_plan" value="1" required><span>1</span></label><label><input type="radio" name="q4_plan" value="2"><span>2</span></label><label><input type="radio" name="q4_plan" value="3"><span>3</span></label><label><input type="radio" name="q4_plan" value="4"><span>4</span></label><label><input type="radio" name="q4_plan" value="5"><span>5</span></label></div><span>綿密に計画</span></div></div><div class="survey-question"><p class="question-text">5. 個々の食品の関係よりも、全体のバランスを考えながら配置した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q5_balance" value="1" required><span>1</span></label><label><input type="radio" name="q5_balance" value="2"><span>2</span></label><label><input type="radio" name="q5_balance" value="3"><span>3</span></label><label><input type="radio" name="q5_balance" value="4"><span>4</span></label><label><input type="radio" name="q5_balance" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">6. グループ分けをする際、見た目の類似性を重視した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q6_visual" value="1" required><span>1</span></label><label><input type="radio" name="q6_visual" value="2"><span>2</span></label><label><input type="radio" name="q6_visual" value="3"><span>3</span></label><label><input type="radio" name="q6_visual" value="4"><span>4</span></label><label><input type="radio" name="q6_visual" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">7. グループ分けをする際、味や食文化といった抽象的な関連性を重視した</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q7_abstract" value="1" required><span>1</span></label><label><input type="radio" name="q7_abstract" value="2"><span>2</span></label><label><input type="radio" name="q7_abstract" value="3"><span>3</span></label><label><input type="radio" name="q7_abstract" value="4"><span>4</span></label><label><input type="radio" name="q7_abstract" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div><div class="survey-question"><p class="question-text">8. 最終的な食品の配置とグループ分けに、自分自身で納得している</p><div class="likert-scale"><span>全くそう思わない</span><div class="likert-options"><label><input type="radio" name="q8_satisfied" value="1" required><span>1</span></label><label><input type="radio" name="q8_satisfied" value="2"><span>2</span></label><label><input type="radio" name="q8_satisfied" value="3"><span>3</span></label><label><input type="radio" name="q8_satisfied" value="4"><span>4</span></label><label><input type="radio" name="q8_satisfied" value="5"><span>5</span></label></div><span>非常にそう思う</span></div></div></fieldset>
-                <fieldset class="survey-section">
-  <legend>C. あなたの食生活について</legend>
+const form = document.getElementById('surveyForm');
+if (form) {
 
-  <div class="survey-question">
-    <p class="question-text">9. 普段、どのくらいの頻度で自炊をしますか？</p>
-    <div class="likert-scale" id="q9_cooking_freq">
-      <label><input type="radio" name="q9_cooking_freq" value="1" required><span>全くしない</span></label>
-      <label><input type="radio" name="q9_cooking_freq" value="2"><span>月に数回</span></label>
-      <label><input type="radio" name="q9_cooking_freq" value="3"><span>週に1-2回</span></label>
-      <label><input type="radio" name="q9_cooking_freq" value="4"><span>週に3-5回</span></label>
-      <label><input type="radio" name="q9_cooking_freq" value="5"><span>ほぼ毎日</span></label>
-    </div>
-  </div>
+  // アンケートのHTMLを生成（q1〜q11：あなたの現行そのまま）
+  form.innerHTML = `
+const LIKERT_NAMES = [
+  'q1_fun','q2_intuitive','q3_confused','q4_plan','q5_balance',
+  'q6_visual','q7_abstract','q8_satisfied','q9_cooking_freq',
+  'q10_interest','q11_frozen'
+];
 
-  <div class="survey-question">
-    <p class="question-text">10. 食や料理に対する関心は強い方だ</p>
-    <div class="likert-scale">
-      <span>全くそう思わない</span>
-      <div class="likert-options">
-        <label><input type="radio" name="q10_interest" value="1" required><span>1</span></label>
-        <label><input type="radio" name="q10_interest" value="2"><span>2</span></label>
-        <label><input type="radio" name="q10_interest" value="3"><span>3</span></label>
-        <label><input type="radio" name="q10_interest" value="4"><span>4</span></label>
-        <label><input type="radio" name="q10_interest" value="5"><span>5</span></label>
+function getRadioValue(name) {
+  const el = document.getElementById('surveyForm')
+              ?.querySelector(`;input[name="${name}"];checked`);
+  return el ? el.value : '';
+}
+
+function collectSurveyLikert() {
+  const survey = {};
+  LIKERT_NAMES.forEach(n => { survey[n] = getRadioValue(n); });
+  return survey;
+}
+
+
+  
+    <fieldset class="survey-section">
+      <legend>A. 実験の全体的な感想について</legend>
+      <div class="survey-question">
+        <p class="question-text">1. 今回の実験は楽しかった</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q1_fun" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q1_fun" value="2"><span>2</span></label>
+            <label><input type="radio" name="q1_fun" value="3"><span>3</span></label>
+            <label><input type="radio" name="q1_fun" value="4"><span>4</span></label>
+            <label><input type="radio" name="q1_fun" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
       </div>
-      <span>非常にそう思う</span>
-    </div>
-  </div>
 
-  <div class="survey-question">
-    <p class="question-text">11. 冷凍食品を食べる機会は多い</p>
-    <div class="likert-scale">
-      <span>全くそう思わない</span>
-      <div class="likert-options">
-        <label><input type="radio" name="q11_frozen" value="1" required><span>1</span></label>
-        <label><input type="radio" name="q11_frozen" value="2"><span>2</span></label>
-        <label><input type="radio" name="q11_frozen" value="3"><span>3</span></label>
-        <label><input type="radio" name="q11_frozen" value="4"><span>4</span></label>
-        <label><input type="radio" name="q11_frozen" value="5"><span>5</span></label>
+      <div class="survey-question">
+        <p class="question-text">2. 食品を配置する作業は、直感的で分かりやすかった</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q2_intuitive" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q2_intuitive" value="2"><span>2</span></label>
+            <label><input type="radio" name="q2_intuitive" value="3"><span>3</span></label>
+            <label><input type="radio" name="q2_intuitive" value="4"><span>4</span></label>
+            <label><input type="radio" name="q2_intuitive" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
       </div>
-      <span>非常にそう思う</span>
-    </div>
-  </div>
 
-  <!-- ★ 新設：全食品の認知度（0〜100、数値は見せない） -->
-  <div class="survey-question">
-    <p class="question-text">12. 以下の各食品について、あなたの「知っている度」をバーで選んでください。</p>
-    <p class="info-text">目安：左から「全く知らない｜名前だけ知っている｜食べたことがある｜よく食べる」。直感でOKです。</p>
-    <div id="recognition_sliders"></div>
-  </div>
-</fieldset>
+      <div class="survey-question">
+        <p class="question-text">3. 食品をどこに配置するか、判断に迷うことが多かった</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q3_confused" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q3_confused" value="2"><span>2</span></label>
+            <label><input type="radio" name="q3_confused" value="3"><span>3</span></label>
+            <label><input type="radio" name="q3_confused" value="4"><span>4</span></label>
+            <label><input type="radio" name="q3_confused" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
+      </div>
+    </fieldset>
 
-                <button id="submitAndFinishBtn" type="submit">アンケートを回答し、データを送信する</button>
-                `;
+    <fieldset class="survey-section">
+      <legend>B. ご自身の思考プロセスや戦略について</legend>
+
+      <div class="survey-question">
+        <p class="question-text">4. 実験を始める前に、ある程度の配置計画を立てていた</p>
+        <div class="likert-scale">
+          <span>計画なし</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q4_plan" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q4_plan" value="2"><span>2</span></label>
+            <label><input type="radio" name="q4_plan" value="3"><span>3</span></label>
+            <label><input type="radio" name="q4_plan" value="4"><span>4</span></label>
+            <label><input type="radio" name="q4_plan" value="5"><span>5</span></label>
+          </div>
+          <span>綿密に計画</span>
+        </div>
+      </div>
+
+      <div class="survey-question">
+        <p class="question-text">5. 個々の食品の関係よりも、全体のバランスを考えながら配置した</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q5_balance" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q5_balance" value="2"><span>2</span></label>
+            <label><input type="radio" name="q5_balance" value="3"><span>3</span></label>
+            <label><input type="radio" name="q5_balance" value="4"><span>4</span></label>
+            <label><input type="radio" name="q5_balance" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
+      </div>
+
+      <div class="survey-question">
+        <p class="question-text">6. グループ分けをする際、見た目の類似性を重視した</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q6_visual" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q6_visual" value="2"><span>2</span></label>
+            <label><input type="radio" name="q6_visual" value="3"><span>3</span></label>
+            <label><input type="radio" name="q6_visual" value="4"><span>4</span></label>
+            <label><input type="radio" name="q6_visual" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
+      </div>
+
+      <div class="survey-question">
+        <p class="question-text">7. グループ分けをする際、味や食文化といった抽象的な関連性を重視した</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q7_abstract" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q7_abstract" value="2"><span>2</span></label>
+            <label><input type="radio" name="q7_abstract" value="3"><span>3</span></label>
+            <label><input type="radio" name="q7_abstract" value="4"><span>4</span></label>
+            <label><input type="radio" name="q7_abstract" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
+      </div>
+
+      <div class="survey-question">
+        <p class="question-text">8. 最終的な食品の配置とグループ分けに、自分自身で納得している</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q8_satisfied" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q8_satisfied" value="2"><span>2</span></label>
+            <label><input type="radio" name="q8_satisfied" value="3"><span>3</span></label>
+            <label><input type="radio" name="q8_satisfied" value="4"><span>4</span></label>
+            <label><input type="radio" name="q8_satisfied" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
+      </div>
+    </fieldset>
+
+    <fieldset class="survey-section">
+      <legend>C. あなたの食生活について</legend>
+
+      <div class="survey-question">
+        <p class="question-text">9. 普段、どのくらいの頻度で自炊をしますか？</p>
+        <div class="likert-scale" id="q9_cooking_freq">
+          <label><input type="radio" name="q9_cooking_freq" value="1" required><span>全くしない</span></label>
+          <label><input type="radio" name="q9_cooking_freq" value="2"><span>月に数回</span></label>
+          <label><input type="radio" name="q9_cooking_freq" value="3"><span>週に1-2回</span></label>
+          <label><input type="radio" name="q9_cooking_freq" value="4"><span>週に3-5回</span></label>
+          <label><input type="radio" name="q9_cooking_freq" value="5"><span>ほぼ毎日</span></label>
+        </div>
+      </div>
+
+      <div class="survey-question">
+        <p class="question-text">10. 食や料理に対する関心は強い方だ</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q10_interest" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q10_interest" value="2"><span>2</span></label>
+            <label><input type="radio" name="q10_interest" value="3"><span>3</span></label>
+            <label><input type="radio" name="q10_interest" value="4"><span>4</span></label>
+            <label><input type="radio" name="q10_interest" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
+      </div>
+
+      <div class="survey-question">
+        <p class="question-text">11. 冷凍食品を食べる機会は多い</p>
+        <div class="likert-scale">
+          <span>全くそう思わない</span>
+          <div class="likert-options">
+            <label><input type="radio" name="q11_frozen" value="1" required><span>1</span></label>
+            <label><input type="radio" name="q11_frozen" value="2"><span>2</span></label>
+            <label><input type="radio" name="q11_frozen" value="3"><span>3</span></label>
+            <label><input type="radio" name="q11_frozen" value="4"><span>4</span></label>
+            <label><input type="radio" name="q11_frozen" value="5"><span>5</span></label>
+          </div>
+          <span>非常にそう思う</span>
+        </div>
+      </div>
+    </fieldset>
+  `; // ← HTMLはここで閉じる（重要！）
+
+  // === q1〜q11 を必ず送る最小パッチ：既存の送信処理はそのまま ===
+
+  // name 一覧
+  const __LIKERT_NAMES__ = [
+    'q1_fun','q2_intuitive','q3_confused','q4_plan','q5_balance',
+    'q6_visual','q7_abstract','q8_satisfied','q9_cooking_freq',
+    'q10_interest','q11_frozen'
+  ];
+
+  // 画面から選択値を収集
+  function __collectLikert__(formEl) {
+    const survey = {};
+    __LIKERT_NAMES__.forEach(name => {
+      const el = formEl.querySelector(`input[name="${name}"]:checked`);
+      survey[name] = el ? el.value : '';
+    });
+    return survey;
+  }
+
+  // payload に survey をマージ
+  function __mergeSurvey__(payload, formEl) {
+    try {
+      const likert = __collectLikert__(formEl);
+      payload.survey = Object.assign({}, payload.survey || {}, likert);
+    } catch (e) {
+      console.warn('merge survey failed:', e);
+    }
+  }
+
+  // fetch を薄くラップ（JSON POST のみ介入）
+  (function patchFetchForSurvey(){
+    if (!window.fetch) return;
+    const origFetch = window.fetch.bind(window);
+    window.fetch = async function(input, init) {
+      try {
+        if (init && init.method && init.method.toUpperCase() === 'POST' && init.body) {
+          // Headers を正規化
+          let headers = init.headers || {};
+          if (headers && headers.get && typeof headers.get === 'function') {
+            const o = {};
+            for (const [k,v] of headers.entries()) o[k] = v;
+            headers = o;
+          }
+          const ct = (headers['Content-Type'] || headers['content-type'] || '');
+          const isJSON = ct.includes('application/json') ||
+                         (typeof init.body === 'string' && init.body.trim().startsWith('{'));
+          if (isJSON) {
+            try {
+              const obj = (typeof init.body === 'string') ? JSON.parse(init.body) : init.body;
+              const formEl = document.getElementById('surveyForm') || document;
+              __mergeSurvey__(obj, formEl);
+              init.body = JSON.stringify(obj);
+              if (!ct) init.headers = Object.assign({}, headers, {'Content-Type':'application/json'});
+            } catch (e) {
+              console.warn('fetch body parse skipped:', e);
+            }
+          }
+        }
+      } catch (e) {
+        console.warn('fetch patch error:', e);
+      }
+      return origFetch(input, init);
+    };
+  })();
+
+  // google.script.run.saveData(payload) を使っている場合も介入
+  (function patchGoogleScriptRun(){
+    try {
+      if (window.google && google.script && google.script.run && typeof google.script.run.saveData === 'function') {
+        const orig = google.script.run.saveData.bind(google.script.run);
+        google.script.run.saveData = function(payload) {
+          const formEl = document.getElementById('surveyForm') || document;
+          try { __mergeSurvey__(payload, formEl); } catch(e) {}
+          return orig(payload);
+        };
+      }
+    } catch (e) {
+      console.warn('google.script.run patch error:', e);
+    }
+  })();
+
+} // if(form)
 
 
 // 全食品の認知度スライダーを生成
@@ -615,9 +835,9 @@ if (meatEl) {
                     });
                 }
             }
-            showScreen(screen4);
-            updateStepper(4);
-        });
+            ,showScreen(screen4))
+          updateStepper(4);
+      
     }
 
 
