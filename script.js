@@ -493,126 +493,114 @@ for (let pct = 0; pct <= 100; pct += 5) {
                 // 新しく生成した送信ボタンを取得して、クリックイベントを設定
                 const submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
                 if (submitAndFinishBtn) {
-                    submitAndFinishBtn.addEventListener('click', async (e) => {
-                        // --- 二重送信ガード（最初に置く） ---
-if (isSubmitting) { return; }
-isSubmitting = true;
+                   submitAndFinishBtn.addEventListener('click', async (e) => {
+  e.preventDefault();
 
-// ボタン無効化＋文言変更
-submitAndFinishBtn.disabled = true;
-submitAndFinishBtn.setAttribute('aria-disabled', 'true');
-const originalLabel = submitAndFinishBtn.textContent;
-submitAndFinishBtn.textContent = '送信中…（1回だけクリックしてください）';
+  // --- 二重送信ガード ---
+  if (isSubmitting) return;
+  isSubmitting = true;
 
-// フォーム全体も操作不可に（任意：安心）
-Array.from(form.elements).forEach(el => { if (el !== submitAndFinishBtn) el.disabled = true; });
+  // ボタンだけ先にロック（※他の入力はまだdisabledにしない）
+  submitAndFinishBtn.disabled = true;
+  submitAndFinishBtn.setAttribute('aria-disabled', 'true');
+  const originalLabel = submitAndFinishBtn.textContent;
+  submitAndFinishBtn.textContent = '送信中…（1回だけクリックしてください）';
 
-                        e.preventDefault();
-                        if (!form.checkValidity()) {
-                            alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
-                            form.reportValidity();
-                            cancelSubmitLock();
-                            return;
-                        }
-                        
-                        const surveyData = {};
-                        const formData = new FormData(form);
-                        for (const [key, value] of formData.entries()) {
-                            if (key.endsWith('[]')) {
-                                const cleanKey = key.slice(0, -2);
-                                if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
-                                surveyData[cleanKey].push(value);
-                            } else {
-                                surveyData[key] = value;
-                            }
-                        }
-// === Build distance matrix (ADD) ===
-// positions から最終位置マップを作成
-const posMap = {};
-experimentData.positions.forEach(p => { posMap[p.name] = { x: p.x, y: p.y }; });
+  // バリデーション（入力は有効のままなので正しく検証できる）
+  if (!form.checkValidity()) {
+    alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
+    form.reportValidity();
 
-// 全食品のユークリッド距離(px)を行列に
-const foods = Object.keys(posMap);
-const distanceMatrix = {};
-foods.forEach(a => {
-  distanceMatrix[a] = {};
-  foods.forEach(b => {
-    const dx = posMap[a].x - posMap[b].x;
-    const dy = posMap[a].y - posMap[b].y;
-    distanceMatrix[a][b] = Math.round(Math.hypot(dx, dy));
+    // ロック解除（未定義だった cancelSubmitLock の代わり）
+    isSubmitting = false;
+    submitAndFinishBtn.disabled = false;
+    submitAndFinishBtn.removeAttribute('aria-disabled');
+    submitAndFinishBtn.textContent = originalLabel;
+    return;
+  }
+
+  // === ここで初めて値を読む ===
+  const surveyData = {};
+  const formData = new FormData(form);
+  for (const [key, value] of formData.entries()) {
+    if (key.endsWith('[]')) {
+      const cleanKey = key.slice(0, -2);
+      if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
+      surveyData[cleanKey].push(value);
+    } else {
+      surveyData[key] = value;
+    }
+  }
+
+  // 入力の凍結は値を読んだ後に（任意）
+  Array.from(form.elements).forEach(el => {
+    if (el !== submitAndFinishBtn) el.disabled = true;
   });
+
+  // === 以下は既存の処理そのまま ===
+  // 距離行列
+  const posMap = {};
+  experimentData.positions.forEach(p => { posMap[p.name] = { x: p.x, y: p.y }; });
+  const foods = Object.keys(posMap);
+  const distanceMatrix = {};
+  foods.forEach(a => {
+    distanceMatrix[a] = {};
+    foods.forEach(b => {
+      const dx = posMap[a].x - posMap[b].x;
+      const dy = posMap[a].y - posMap[b].y;
+      distanceMatrix[a][b] = Math.round(Math.hypot(dx, dy));
+    });
+  });
+  experimentData.distanceMatrix = distanceMatrix;
+
+  // 認知度とsurvey格納
+  surveyData.recognition_scores = recognitionScores;
+  experimentData.survey = surveyData;
+
+  showLoading(true, "データを送信中...");
+
+  try {
+    const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbzrDKs-6wmeHDpyepiQNwW9ZcAAFtPRiasbNJtP8M0Pvlkxh5e04Km7eQh3mK1MOhHV/exec';
+    const dataToSave = { ...experimentData, experimentEndTimeISO: new Date().toISOString() };
+
+    // 最終配置
+    const finalPositions = [];
+    Object.entries(foodContainers).forEach(([name, el]) => {
+      finalPositions.push({ name, x: el.offsetLeft, y: el.offsetTop });
+    });
+    experimentData.finalPositions = finalPositions;
+
+    // ミートパイ距離
+    function centerOf(el) { return { x: el.offsetLeft + el.offsetWidth / 2, y: el.offsetTop + el.offsetHeight / 2 }; }
+    const diag = Math.hypot(clusterCanvas.width, clusterCanvas.height);
+    const meatEl = foodContainers['australian_meatpie'];
+    if (meatEl) {
+      const meatC = centerOf(meatEl);
+      const meatpieDistances = {};
+      Object.entries(foodContainers).forEach(([name, el]) => {
+        if (name === 'australian_meatpie') return;
+        const c = centerOf(el);
+        const rawDist = Math.hypot(c.x - meatC.x, c.y - meatC.y);
+        meatpieDistances[name] = +(rawDist / diag).toFixed(4);
+      });
+      experimentData.meatpieDistances = meatpieDistances;
+    }
+
+    await fetch(gasWebAppUrl, {
+      method: 'POST',
+      mode: 'no-cors',
+      body: JSON.stringify(dataToSave)
+    });
+
+  } catch (error) {
+    console.warn('[WARNING] fetch failed but probably sent successfully:', error);
+  } finally {
+    showScreen(screen5);
+    updateStepper(5);
+    showLoading(false);
+  }
 });
 
-// 送信データへ同梱
-// 距離行列を追加
-experimentData.distanceMatrix = distanceMatrix;
-
-// 認知度スコアをsurveyDataに含める
-surveyData.recognition_scores = recognitionScores;
-
-// survey全体をexperimentDataに格納
-experimentData.survey = surveyData;
-
-                        
-showLoading(true, "データを送信中...");
-
-try {
-  const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbzrDKs-6wmeHDpyepiQNwW9ZcAAFtPRiasbNJtP8M0Pvlkxh5e04Km7eQh3mK1MOhHV/exec';
-  const dataToSave = { ...experimentData, experimentEndTimeISO: new Date().toISOString() };
-
-  // --- 最終配置を取得 ---
-const finalPositions = [];
-Object.entries(foodContainers).forEach(([name, el]) => {
-  finalPositions.push({
-    name,
-    x: el.offsetLeft,
-    y: el.offsetTop
-  });
-});
-experimentData.finalPositions = finalPositions;
-
-// --- ミートパイ距離（画面サイズに依存しない相対値で算出） ---
-function centerOf(el) {
-  return { x: el.offsetLeft + el.offsetWidth / 2, y: el.offsetTop + el.offsetHeight / 2 };
-}
-
-const canvasW = clusterCanvas.width;
-const canvasH = clusterCanvas.height;
-const diag = Math.hypot(canvasW, canvasH); // 対角線長で正規化
-
-const meatEl = foodContainers['australian_meatpie'];
-if (meatEl) {
-  const meatC = centerOf(meatEl);
-  const meatpieDistances = {};
-  Object.entries(foodContainers).forEach(([name, el]) => {
-    if (name === 'australian_meatpie') return;
-    const c = centerOf(el);
-    const rawDist = Math.hypot(c.x - meatC.x, c.y - meatC.y);
-    meatpieDistances[name] = +(rawDist / diag).toFixed(4); // 0〜1に正規化
-  });
-  experimentData.meatpieDistances = meatpieDistances;
-}
-
-
-
-  // レスポンスは読まずに送るだけ
-  await fetch(gasWebAppUrl, {
-    method: 'POST',
-    mode: 'no-cors',
-    body: JSON.stringify(dataToSave)
-  });
-
-} catch (error) {
-  console.warn('[WARNING] fetch failed but probably sent successfully:', error);
-
-} finally {
-  // 成否に関わらず完了画面へ
-  showScreen(screen5);
-  updateStepper(5);
-  showLoading(false);
-}
-
-                    });
                 }
             }
             showScreen(screen4);
