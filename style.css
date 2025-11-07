@@ -78,9 +78,36 @@ button:disabled { background-color: #cccccc; cursor: not-allowed; transform: non
 .likert-scale > .likert-options { grid-column: 2 / 3; }
 .likert-scale > span:first-child { justify-self: start; }
 .likert-scale > span:last-child { justify-self: end; }
-#q9_cooking_freq { display: flex; justify-content: space-around; align-items: center; gap: 10px; }
-#q9_cooking_freq label { display: flex; flex-direction: column; align-items: center; cursor: pointer; padding: 5px 10px; border-radius: 4px; transition: background-color 0.2s; }
-#q9_cooking_freq label:hover { background-color: #f0f8ff; }
+/* Q9: 自炊頻度レイアウト修正 */
+#q9_cooking_freq {
+  display: flex;              /* gridを上書きしてFlexに */
+  flex-wrap: wrap;            /* 狭い幅では折り返し */
+  gap: 12px 18px;             /* 行間・列間 */
+  justify-content: flex-start;
+  align-items: center;
+  margin-top: 6px;
+}
+
+#q9_cooking_freq label {
+  display: flex;
+  align-items: center;
+  gap: 6px;                   /* ○ と 文字の間 */
+  padding: 6px 10px;
+  border-radius: 6px;
+  white-space: nowrap;        /* ラベルの途中改行を防ぐ */
+}
+
+#q9_cooking_freq input[type="radio"] {
+  margin: 0;                  /* 余白のバラつき抑制 */
+}
+
+/* 幅十分なときは1行で均等配置 */
+@media (min-width: 900px) {
+  #q9_cooking_freq {
+    flex-wrap: nowrap;
+    justify-content: space-between;  /* space-aroundでもOK */
+  }
+}
 .checkbox-group { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; }
 .checkbox-group label { display: flex; align-items: center; gap: 8px; cursor: pointer; }
 @media (max-width: 768px) { .instructions-layout, .experiment-layout-container { flex-direction: column; } }
