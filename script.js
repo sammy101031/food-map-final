@@ -519,6 +519,40 @@ for (let pct = 0; pct <= 100; pct += 5) {
     return;
   }
 
+  // ① ユーティリティ：ラジオの選択値を取得
+function getCheckedValue(groupName) {
+  const el = document.querySelector(`input[name="${groupName}"]:checked`);
+  return el ? el.value : '';
+}
+
+// ② 古い名前 → 新しい「q1..q11」へマッピング（HTMLは現状のままでOK）
+const likertNameMap = {
+  q1:  'q1_fun',
+  q2:  'q2_intuitive',
+  q3:  'q3_confused',
+  q4:  'q4_plan',
+  q5:  'q5_balance',
+  q6:  'q6_visual',
+  q7:  'q7_abstract',
+  q8:  'q8_satisfied',
+  q9:  'q9_cooking_freq',
+  q10: 'q10_interest',
+  q11: 'q11_frozen'
+};
+
+// ③ 必須チェックつきで q1..q11 を収集して surveyData に上書き
+function collectLikertAsQ1toQ11() {
+  const out = {};
+  for (const [q, oldName] of Object.entries(likertNameMap)) {
+    const v = getCheckedValue(oldName);
+    out[q] = v; // 未回答は '' が入る
+  }
+  return out;
+}
+
+
+
+
   // === ここで初めて値を読む ===
   const surveyData = {};
   const formData = new FormData(form);
@@ -531,6 +565,11 @@ for (let pct = 0; pct <= 100; pct += 5) {
       surveyData[key] = value;
     }
   }
+
+
+  
+
+
 
   // 入力の凍結は値を読んだ後に（任意）
   Array.from(form.elements).forEach(el => {
