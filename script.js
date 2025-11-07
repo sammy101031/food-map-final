@@ -489,124 +489,148 @@ for (let pct = 0; pct <= 100; pct += 5) {
 
 
                 
-                // ★★★ここが重要★★★
-                // 新しく生成した送信ボタンを取得して、クリックイベントを設定
-                const submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
-                if (submitAndFinishBtn) {
-                   submitAndFinishBtn.addEventListener('click', async (e) => {
-  e.preventDefault();
+  // ★★★ここが重要★★★
+// 送信ボタンではなく「フォームのsubmit」を拾う（Enterでも確実）
+const formEl = document.getElementById('surveyForm');
+const submitAndFinishBtn = document.getElementById('submitAndFinishBtn');
 
-  // --- 二重送信ガード ---
-  if (isSubmitting) return;
-  isSubmitting = true;
+if (formEl && submitAndFinishBtn) {
+  formEl.addEventListener('submit', async (e) => {
+    e.preventDefault();
 
-  // ボタンだけ先にロック（※他の入力はまだdisabledにしない）
-  submitAndFinishBtn.disabled = true;
-  submitAndFinishBtn.setAttribute('aria-disabled', 'true');
-  const originalLabel = submitAndFinishBtn.textContent;
-  submitAndFinishBtn.textContent = '送信中…（1回だけクリックしてください）';
+    // 二重送信ガード
+    if (isSubmitting) return;
+    isSubmitting = true;
 
-  // バリデーション（入力は有効のままなので正しく検証できる）
-  if (!form.checkValidity()) {
-    alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
-    form.reportValidity();
+    const originalLabel = submitAndFinishBtn.textContent;
+    submitAndFinishBtn.disabled = true;
+    submitAndFinishBtn.setAttribute('aria-disabled', 'true');
+    submitAndFinishBtn.textContent = '送信中…（1回だけクリックしてください）';
 
-    // ロック解除（未定義だった cancelSubmitLock の代わり）
-    isSubmitting = false;
-    submitAndFinishBtn.disabled = false;
-    submitAndFinishBtn.removeAttribute('aria-disabled');
-    submitAndFinishBtn.textContent = originalLabel;
-    return;
-  }
-
-  // === ここで初めて値を読む ===
-  const surveyData = {};
-  const formData = new FormData(form);
-  for (const [key, value] of formData.entries()) {
-    if (key.endsWith('[]')) {
-      const cleanKey = key.slice(0, -2);
-      if (!surveyData[cleanKey]) surveyData[cleanKey] = [];
-      surveyData[cleanKey].push(value);
-    } else {
-      surveyData[key] = value;
+    // 入力はまだdisableしない（FormDataに入らなくなるため）
+    if (!formEl.checkValidity()) {
+      alert('未回答のアンケート項目があります。全ての項目にご回答ください。');
+      formEl.reportValidity();
+      // ロック解除
+      isSubmitting = false;
+      submitAndFinishBtn.disabled = false;
+      submitAndFinishBtn.removeAttribute('aria-disabled');
+      submitAndFinishBtn.textContent = originalLabel;
+      return;
     }
-  }
 
-  // 入力の凍結は値を読んだ後に（任意）
-  Array.from(form.elements).forEach(el => {
-    if (el !== submitAndFinishBtn) el.disabled = true;
-  });
+    // === 値を一回だけ収集 ===
+    const surveyData = {};
+    const fd = new FormData(formEl);
+    for (const [key, value] of fd.entries()) {
+      if (key.endsWith('[]')) {
+        const k = key.slice(0, -2);
+        (surveyData[k] ||= []).push(value);
+      } else {
+        surveyData[key] = value;
+      }
+    }
 
-  // === 以下は既存の処理そのまま ===
-  // 距離行列
-  const posMap = {};
-  experimentData.positions.forEach(p => { posMap[p.name] = { x: p.x, y: p.y }; });
-  const foods = Object.keys(posMap);
-  const distanceMatrix = {};
-  foods.forEach(a => {
-    distanceMatrix[a] = {};
-    foods.forEach(b => {
-      const dx = posMap[a].x - posMap[b].x;
-      const dy = posMap[a].y - posMap[b].y;
-      distanceMatrix[a][b] = Math.round(Math.hypot(dx, dy));
-    });
-  });
-  experimentData.distanceMatrix = distanceMatrix;
+    // --- q1〜q11 を必ず収集（HTMLのnameはそのままでOK） ---
+    const likertNameMap = {
+      q1:  'q1_fun',
+      q2:  'q2_intuitive',
+      q3:  'q3_confused',
+      q4:  'q4_plan',
+      q5:  'q5_balance',
+      q6:  'q6_visual',
+      q7:  'q7_abstract',
+      q8:  'q8_satisfied',
+      q9:  'q9_cooking_freq',
+      q10: 'q10_interest',
+      q11: 'q11_frozen'
+    };
+    for (const [q, oldName] of Object.entries(likertNameMap)) {
+      const el = document.querySelector(`input[name="${oldName}"]:checked`);
+      surveyData[q] = el ? el.value : '';
+    }
 
-  // 認知度とsurvey格納
-  surveyData.recognition_scores = recognitionScores;
-  experimentData.survey = surveyData;
+    // 未回答チェック（任意）
+    const missing = Object.keys(likertNameMap).filter(k => !surveyData[k]);
+    if (missing.length) {
+      alert('未回答の設問があります（' + missing.join(', ') + '）。すべて回答してください。');
+      isSubmitting = false;
+      submitAndFinishBtn.disabled = false;
+      submitAndFinishBtn.removeAttribute('aria-disabled');
+      submitAndFinishBtn.textContent = originalLabel;
+      return;
+    }
 
-  showLoading(true, "データを送信中...");
+    // ここで初めて入力を凍結（任意）
+    Array.from(formEl.elements).forEach(el => { if (el !== submitAndFinishBtn) el.disabled = true; });
 
-  try {
-    const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbzrDKs-6wmeHDpyepiQNwW9ZcAAFtPRiasbNJtP8M0Pvlkxh5e04Km7eQh3mK1MOhHV/exec';
-    const dataToSave = { ...experimentData, experimentEndTimeISO: new Date().toISOString() };
-
-    // 最終配置
-    const finalPositions = [];
-    Object.entries(foodContainers).forEach(([name, el]) => {
-      finalPositions.push({ name, x: el.offsetLeft, y: el.offsetTop });
-    });
-    experimentData.finalPositions = finalPositions;
-
-    // ミートパイ距離
-    function centerOf(el) { return { x: el.offsetLeft + el.offsetWidth / 2, y: el.offsetTop + el.offsetHeight / 2 }; }
-    const diag = Math.hypot(clusterCanvas.width, clusterCanvas.height);
-    const meatEl = foodContainers['australian_meatpie'];
-    if (meatEl) {
-      const meatC = centerOf(meatEl);
-      const meatpieDistances = {};
-      Object.entries(foodContainers).forEach(([name, el]) => {
-        if (name === 'australian_meatpie') return;
-        const c = centerOf(el);
-        const rawDist = Math.hypot(c.x - meatC.x, c.y - meatC.y);
-        meatpieDistances[name] = +(rawDist / diag).toFixed(4);
+    // --- 既存：距離行列など ---
+    const posMap = {};
+    experimentData.positions.forEach(p => { posMap[p.name] = { x: p.x, y: p.y }; });
+    const foods = Object.keys(posMap);
+    const distanceMatrix = {};
+    foods.forEach(a => {
+      distanceMatrix[a] = {};
+      foods.forEach(b => {
+        const dx = posMap[a].x - posMap[b].x;
+        const dy = posMap[a].y - posMap[b].y;
+        distanceMatrix[a][b] = Math.round(Math.hypot(dx, dy));
       });
-      experimentData.meatpieDistances = meatpieDistances;
-    }
-
-    await fetch(gasWebAppUrl, {
-      method: 'POST',
-      mode: 'no-cors',
-      body: JSON.stringify(dataToSave)
     });
+    experimentData.distanceMatrix = distanceMatrix;
 
-  } catch (error) {
-    console.warn('[WARNING] fetch failed but probably sent successfully:', error);
-  } finally {
-    showScreen(screen5);
-    updateStepper(5);
-    showLoading(false);
-  }
-});
+    surveyData.recognition_scores = recognitionScores;
+    experimentData.survey = surveyData;
 
-                }
-            }
-            showScreen(screen4);
-            updateStepper(4);
+    showLoading(true, "データを送信中...");
+
+    try {
+      const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbzrDKs-6wmeHDpyepiQNwW9ZcAAFtPRiasbNJtP8M0Pvlkxh5e04Km7eQh3mK1MOhHV/exec';
+
+      // 最終配置
+      const finalPositions = [];
+      Object.entries(foodContainers).forEach(([name, el]) => {
+        finalPositions.push({ name, x: el.offsetLeft, y: el.offsetTop });
+      });
+      experimentData.finalPositions = finalPositions;
+
+      // ミートパイ距離
+      function centerOf(el) { return { x: el.offsetLeft + el.offsetWidth / 2, y: el.offsetTop + el.offsetHeight / 2 }; }
+      const diag = Math.hypot(clusterCanvas.width, clusterCanvas.height);
+      const meatEl = foodContainers['australian_meatpie'];
+      if (meatEl) {
+        const meatC = centerOf(meatEl);
+        const meatpieDistances = {};
+        Object.entries(foodContainers).forEach(([name, el]) => {
+          if (name === 'australian_meatpie') return;
+          const c = centerOf(el);
+          const rawDist = Math.hypot(c.x - meatC.x, c.y - meatC.y);
+          meatpieDistances[name] = +(rawDist / diag).toFixed(4);
         });
+        experimentData.meatpieDistances = meatpieDistances;
+      }
+
+      await fetch(gasWebAppUrl, {
+        method: 'POST',
+        mode: 'no-cors',
+        body: JSON.stringify({ ...experimentData, experimentEndTimeISO: new Date().toISOString() })
+      });
+
+    } catch (err) {
+      console.warn('[WARNING] fetch failed but probably sent successfully:', err);
+    } finally {
+      showScreen(screen5);
+      if (typeof updateStepper === 'function') updateStepper(5);
+      showLoading(false);
     }
+  });
+}
+            
+// ここは「イベントリスナーの外」＝余計な ) や }; を置かない
+showScreen(screen4);
+updateStepper(4);
+  
+            
 
 
 
@@ -1160,3 +1184,4 @@ function updateStatusMessage(message) {
 }
 
 document.addEventListener('DOMContentLoaded', initializeApp);
+});}}
