@@ -39,6 +39,14 @@ let appContainer, screen1, screen2, screen3, screen4, screen5,
     loadingSpinner, statusMessage, detailsPanel,
     backToScreen1Btn, backToScreen2Btn, backToStartBtn2;
 
+
+    let isPaused = false;
+let pauseStartedAt = null;
+// 累積停止ms（getCurrentTimestamp で控除する）
+experimentData.pauseAccumulatedMs = 0;
+
+
+
 // グローバル変数
 let subjectInfo = {};
 let experimentData = {
@@ -79,9 +87,11 @@ let foodList = [
 ];
 
 function getCurrentTimestamp() {
-    if (!experimentData.startTime) return 0;
-    return Math.floor((Date.now() - experimentData.startTime) / 1000);
+  if (!experimentData.startTime) return 0;
+  const paused = experimentData.pauseAccumulatedMs || 0;
+  return Math.floor((Date.now() - experimentData.startTime - paused) / 1000);
 }
+
 
 function loadFoodListFromLocalStorage() {
     try {
@@ -185,6 +195,36 @@ function initializeApp() {
     backToScreen1Btn = document.getElementById('backToScreen1Btn');
     backToScreen2Btn = document.getElementById('backToScreen2Btn');
     backToStartBtn2 = document.getElementById('backToStartBtn2');
+    const openHelpBtn = document.getElementById('openHelpBtn');
+const helpOverlay = document.getElementById('helpOverlay');
+const closeHelpBtn = document.getElementById('closeHelpBtn');
+
+if (openHelpBtn && helpOverlay && closeHelpBtn) {
+  openHelpBtn.addEventListener('click', () => {
+    // 一時停止
+    pauseExperiment();
+    // 説明文を screen2 からコピー（手軽&保守いらず）
+    const src = document.querySelector('#screen2 .instructions-layout');
+    const dst = document.getElementById('helpBody');
+    if (src && dst) dst.innerHTML = src.outerHTML;
+    helpOverlay.style.display = 'block';
+  });
+
+  closeHelpBtn.addEventListener('click', () => {
+    helpOverlay.style.display = 'none';
+    // 再開
+    resumeExperiment();
+  });
+
+  // オーバーレイの外側クリックで閉じる（任意）
+  helpOverlay.addEventListener('click', (e) => {
+    if (e.target === helpOverlay) {
+      helpOverlay.style.display = 'none';
+      resumeExperiment();
+    }
+  });
+}
+
 
     if (subjectAgeInput) {
         subjectAgeInput.addEventListener('input', (e) => {
@@ -916,6 +956,7 @@ function makeDraggable(element, handle, food, experimentScope) {
 }
 
 function onMouseDown(e, element, handle) {
+    if (isPaused) return;
     if (currentMode !== 'placement' || e.button !== 0) {
         handle.style.cursor = 'default';
         return;
@@ -965,6 +1006,7 @@ function onMouseDown(e, element, handle) {
 }
 
 function handleClusterMouseDown(e) {
+    if (isPaused) return;
     if (currentMode !== 'clustering' || isDrawingCluster || !clusterCanvas || !ctx) return;
     removeActiveDeleteButton(); isDrawingCluster = true;
     const rect = clusterCanvas.getBoundingClientRect();
@@ -1115,6 +1157,7 @@ function identifyItemsInCluster(cluster) {
 }
 
 function handleClusterClick(e) {
+    if (isPaused) return;
     if (currentMode !== 'clustering' || isDrawingCluster || !clusterCanvas || !ctx || experimentData.clusters.length === 0) return;
     removeActiveDeleteButton(); const rect = clusterCanvas.getBoundingClientRect();
     const cX = e.clientX - rect.left, cY = e.clientY - rect.top;
@@ -1194,3 +1237,34 @@ function updateStatusMessage(message) {
 }
 
 document.addEventListener('DOMContentLoaded', initializeApp);
+
+function pauseExperiment() {
+  if (isPaused) return;
+  isPaused = true;
+  pauseStartedAt = Date.now();
+  appContainer?.classList.add('paused');
+  // クラスタ描画モードなら描画を止める（見た目はそのまま）
+  if (clusterCanvas) clusterCanvas.classList.remove('active-drawing');
+  updateStatusMessage('説明を表示中です。');
+  experimentData.moveHistory.push({
+    timestamp: getCurrentTimestamp(),
+    eventType: 'pauseStart',
+    target: 'application'
+  });
+}
+
+function resumeExperiment() {
+  if (!isPaused) return;
+  isPaused = false;
+  if (pauseStartedAt) {
+    experimentData.pauseAccumulatedMs = (experimentData.pauseAccumulatedMs || 0) + (Date.now() - pauseStartedAt);
+  }
+  pauseStartedAt = null;
+  appContainer?.classList.remove('paused');
+  updateStatusMessage('再開しました。');
+  experimentData.moveHistory.push({
+    timestamp: getCurrentTimestamp(),
+    eventType: 'pauseEnd',
+    target: 'application'
+  });
+}
