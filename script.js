@@ -590,12 +590,19 @@ function collectLikertAsQ1toQ11() {
     const gasWebAppUrl = 'https://script.google.com/macros/s/AKfycbzrDKs-6wmeHDpyepiQNwW9ZcAAFtPRiasbNJtP8M0Pvlkxh5e04Km7eQh3mK1MOhHV/exec';
     const dataToSave = { ...experimentData, experimentEndTimeISO: new Date().toISOString() };
 
-    // 最終配置
-    const finalPositions = [];
-    Object.entries(foodContainers).forEach(([name, el]) => {
-      finalPositions.push({ name, x: el.offsetLeft, y: el.offsetTop });
-    });
-    experimentData.finalPositions = finalPositions;
+// 最終配置（w/hを含めて送信）
+const finalPositions = [];
+Object.entries(foodContainers).forEach(([name, el]) => {
+  finalPositions.push({
+    name,
+    x: el.offsetLeft,
+    y: el.offsetTop,
+    w: el.offsetWidth,   // ← 追加：画像の幅
+    h: el.offsetHeight   // ← 追加：画像の高さ
+  });
+});
+experimentData.finalPositions = finalPositions;
+
 
     // ミートパイ距離
     function centerOf(el) { return { x: el.offsetLeft + el.offsetWidth / 2, y: el.offsetTop + el.offsetHeight / 2 }; }
