@@ -195,29 +195,3 @@ button[aria-disabled="true"] {
   cursor: not-allowed;
   pointer-events: none;
 }
-
-/* 一時停止用オーバーレイ（超シンプル） */
-#helpOverlay{
-  position: fixed; inset: 0; background: rgba(0,0,0,.45);
-  display: none; z-index: 9999; /* いちばん上 */
-}
-#helpOverlay .help-dialog{
-  background: #fff; max-width: 900px; width: 92%;
-  margin: 6vh auto; padding: 20px; border-radius: 12px;
-  box-shadow: 0 8px 30px rgba(0,0,0,.2);
-  max-height: 88vh; overflow: auto; text-align: left;
-}
-#helpOverlay .help-body p{ margin-bottom: 12px; }
-
-/* 一時停止中はキャンバス側を触れないようにする */
-#app.paused .canvas-area,
-#app.paused .canvas-area *{
-  pointer-events: none !important;
-  user-select: none !important;
-}
-
-/* 一時停止中であることを軽く示す（任意） */
-#app.paused #statusMessage::after{
-  content: "（一時停止中）";
-  color: #dc3545; margin-left: .4em; font-weight: bold;
-}
